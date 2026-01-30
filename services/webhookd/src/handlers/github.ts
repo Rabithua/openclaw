@@ -113,9 +113,9 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
     JSON.stringify(envelope),
     '',
     'Do:',
-    `- Read the issue at ${payload.issue.html_url} (or use the payload body).`,
+    '- Use GitHub CLI (`gh`) to fetch any additional context you need (avoid browser automation).',
     `- Draft a helpful, action-oriented response (not overly conservative).`,
-    `- Post the comment to ${payload.repository.full_name} issue #${payload.issue.number}.`,
+    `- Post the comment using: gh issue comment ${payload.issue.number} --repo ${payload.repository.full_name} --body <text>`,
     '- Append signature: “——由 OpenClaw 助手代回复”.',
     '- Then summarize what you did and any next steps, and notify the user in Telegram.',
   ].join('\n');
