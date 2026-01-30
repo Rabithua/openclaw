@@ -46,7 +46,7 @@ function buildSystemEventText(args: {
     clippedBody ? clippedBody.slice(0, 8000) : '(empty)',
     '',
     'Instruction:',
-    '- Please triage this issue and (if appropriate) reply on GitHub.' ,
+    '- Please triage this issue and (if appropriate) reply on GitHub.',
     '- When posting a GitHub comment, append signature: “——由 OpenClaw 助手代回复”.',
   ].join('\n');
 }
@@ -58,7 +58,8 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
   const event = req.headers.get('x-github-event');
   const delivery = req.headers.get('x-github-delivery');
 
-  const bodyBytes = new Uint8Array(await req.arrayBuffer());
+  const bodyBuf = await req.arrayBuffer();
+  const bodyBytes = new Uint8Array(bodyBuf);
 
   try {
     await verifyGithubSignatureOrThrow({ secret, signature256, bodyBytes });

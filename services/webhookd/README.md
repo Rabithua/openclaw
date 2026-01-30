@@ -3,7 +3,9 @@
 Local webhook receiver (Deno) that **forwards verified webhooks to OpenClaw**.
 
 Currently supported:
-- GitHub Webhooks: `issues` (action: `opened`) → triggers an OpenClaw `sessions_spawn` job to triage + reply.
+
+- GitHub Webhooks: `issues` (action: `opened`) → triggers an OpenClaw `sessions_spawn` job to
+  triage + reply.
 
 ## Run
 

@@ -15,7 +15,8 @@ function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
 export async function verifyGithubSignatureOrThrow(args: {
   secret: string;
   signature256: string | null;
-  bodyBytes: Uint8Array;
+  // Deno's WebCrypto types are picky; keep this as an ArrayBuffer-backed Uint8Array.
+  bodyBytes: Uint8Array<ArrayBuffer>;
 }): Promise<void> {
   const { secret, signature256, bodyBytes } = args;
 
@@ -34,7 +35,7 @@ export async function verifyGithubSignatureOrThrow(args: {
     ['sign'],
   );
 
-  const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, bodyBytes));
+  const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, bodyBytes.buffer));
   const expected = hexToBytes(expectedHex);
 
   if (!timingSafeEqual(mac, expected)) {
