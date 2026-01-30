@@ -103,21 +103,33 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
     payload,
   };
 
-  // Send as a wake event so OpenClaw main session receives it immediately.
-  // (OpenClaw can then decide whether/how to reply and how to notify.)
+  // Hand off to OpenClaw to do the heavy lifting (triage + reply + notify).
+  // This keeps webhookd as a thin forwarder.
+  const task = [
+    text,
+    '',
+    'Context (structured):',
+    JSON.stringify(envelope),
+    '',
+    'Do:',
+    `- Read the issue at ${payload.issue.html_url} (or use the payload body).`,
+    `- Draft a helpful, action-oriented response (not overly conservative).`,
+    `- Post the comment to ${payload.repository.full_name} issue #${payload.issue.number}.`,
+    '- Append signature: “——由 OpenClaw 助手代回复”.',
+    '- Then summarize what you did and any next steps, and notify the user in Telegram.',
+  ].join('\n');
+
   await openclawToolsInvoke({
     gatewayUrl,
     gatewayToken,
-    tool: 'cron',
-    action: 'wake',
+    tool: 'sessions_spawn',
     toolArgs: {
-      mode: 'now',
-      text,
-      // Provide a compact JSON envelope for agents that prefer structured parsing.
-      // Keep it short to avoid hitting payload limits.
-      meta: envelope,
+      label: `webhook:github:${payload.repository.full_name}#${payload.issue.number}`,
+      task,
+      cleanup: 'keep',
+      runTimeoutSeconds: 600,
     },
   });
 
-  return json({ ok: true, forwarded: true });
+  return json({ ok: true, forwarded: true, spawned: true });
 }
