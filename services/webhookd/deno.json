@@ -1,0 +1,15 @@
+{
+  "name": "webhookd",
+  "version": "0.1.0",
+  "tasks": {
+    "dev": "deno run -A --watch mod.ts",
+    "start": "deno run -A mod.ts",
+    "fmt": "deno fmt",
+    "check": "deno check mod.ts"
+  },
+  "fmt": {
+    "lineWidth": 100,
+    "semiColons": true,
+    "singleQuote": true
+  }
+}
