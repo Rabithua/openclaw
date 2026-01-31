@@ -1,37 +1,96 @@
 # webhookd
 
-Local webhook receiver (Deno) that **forwards verified webhooks to OpenClaw**.
+A thin webhook receiver/normalizer that verifies incoming webhooks (currently GitHub) and forwards them to OpenClaw via `POST /tools/invoke`.
 
-Currently supported:
+This is intentionally **small and dumb**:
+- Verify signatures (GitHub `X-Hub-Signature-256`)
+- Apply guardrails (ignore self-comments / ignore actors / action allowlist / dedupe)
+- Forward a structured envelope to OpenClaw (so the "real" logic lives in your agent)
 
-- GitHub Webhooks: `issues` (action: `opened`) → triggers an OpenClaw `sessions_spawn` job to
-  triage + reply.
+## Features
 
-## Run
+- GitHub events supported:
+  - `issues`
+  - `issue_comment`
+  - `pull_request`
+  - `pull_request_review`
+  - `pull_request_review_comment`
+- Safety guardrails:
+  - Avoid reply loops by ignoring comments that contain the signature `——由 OpenClaw 助手代回复`
+  - Ignore specific GitHub actors (e.g. yourself / bots)
+  - Only act on a small set of high-signal actions (to avoid double replies like `opened` + `labeled`)
+  - Idempotency/dedupe cache (in-memory TTL) to avoid duplicates on retries
+
+## Requirements
+
+- Deno 2.x
+- An OpenClaw Gateway running locally (default `http://127.0.0.1:18789`) with token auth enabled
+
+## Setup
+
+1) Copy env file:
 
 ```bash
-cd ~/Documents/openclaw/services/webhookd
-export PORT=8787
-export WEBHOOK_PATH=/webhook
+cd services/webhookd
+cp .env.example .env
+```
 
-# OpenClaw Gateway (local)
-export OPENCLAW_GATEWAY_URL='http://127.0.0.1:18789'
-export OPENCLAW_GATEWAY_TOKEN='...'
+2) Fill `.env`:
 
-# GitHub webhook verify secret
-export GITHUB_WEBHOOK_SECRET='...'
+- `OPENCLAW_GATEWAY_TOKEN`: from `openclaw.json` gateway auth token
+- `GITHUB_WEBHOOK_SECRET`: must match GitHub webhook "Secret"
 
+3) Run locally:
+
+```bash
 deno task start
+# or: deno run -A --env-file=.env mod.ts
 ```
 
-## Cloudflare Tunnel
-
-Expose the local service:
+Health check:
 
 ```bash
-cloudflared tunnel --url http://localhost:8787
+curl http://127.0.0.1:8787/healthz
 ```
 
-Then set GitHub Webhook Payload URL to:
+## Exposing to the Internet (recommended: Tailscale Funnel)
 
-`https://<random>.trycloudflare.com/webhook`
+If you have Tailscale installed on the same machine:
+
+```bash
+tailscale cert <your-node>.ts.net
+tailscale funnel --bg http://127.0.0.1:8787
+```
+
+Then set your GitHub webhook URL to:
+
+- `https://<your-node>.ts.net/webhook`
+
+## GitHub Webhook config
+
+- Payload URL: `https://<public-host>/webhook`
+- Content type: `application/json`
+- Secret: must match `GITHUB_WEBHOOK_SECRET`
+- Events: pick what you need (issues / issue_comment / pull_request / reviews)
+
+## Notes on "no such host" / broken DNS on macOS
+
+If you run Surge as a gateway (TUN) it may set macOS DNS to a virtual resolver (e.g. `198.18.0.2`).
+`nslookup` might look wrong even when `/etc/hosts` works.
+
+When `tailscale cert` fails with `lookup ... no such host`, you can temporarily pin `mac-mini.tail*.ts.net` and the ACME hostnames in `/etc/hosts`.
+
+## Development
+
+```bash
+deno fmt
+deno check mod.ts
+```
+
+## Design: what gets forwarded to OpenClaw
+
+`webhookd` calls OpenClaw `sessions_spawn` with a task containing:
+- A human-readable summary
+- A `Context (structured)` JSON envelope containing `{source,event,delivery,receivedAt,payload}`
+
+Your OpenClaw agent decides what to do (triage, comment on GitHub, notify Telegram, etc.).

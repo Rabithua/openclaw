@@ -1,0 +1,5 @@
+.env
+*.crt
+*.key
+/tmp
+.DS_Store

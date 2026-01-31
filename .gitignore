@@ -1,3 +1,7 @@
-.venv/
-memory/
+# Local secrets / certs
+*.key
+*.crt
+.env
+
+# macOS
 .DS_Store
