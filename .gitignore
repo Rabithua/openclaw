@@ -8,3 +8,6 @@ dist/
 
 # macOS
 .DS_Store
+
+# Local machine-only files
+.local/
