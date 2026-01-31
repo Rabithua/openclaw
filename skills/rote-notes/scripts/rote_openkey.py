@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 """Minimal Rote OpenKey client.
 
-Uses Rote API Key (OpenKey) auth:
-  Authorization: Bearer <API_KEY>
+Uses Rote OpenKey auth.
+
+Note: deployments may require the OpenKey to be passed as a request parameter/field
+(named `openkey`) rather than an Authorization header.
+
+This client sends `openkey`:
+- as a JSON field for POST requests
+- as a query param for GET requests
 
 Env:
   ROTE_API_BASE  e.g. https://api.rote.ink/v2/api
@@ -41,17 +47,25 @@ def _api_key() -> str:
 
 def _request(method: str, path: str, *, query: dict | None = None, body: dict | None = None) -> dict:
     url = _api_base() + path
+
+    # Many Rote deployments accept OpenKey via `openkey` parameter.
+    # Add it by default (GET/query) and also include it in POST bodies.
+    if query is None:
+        query = {}
+    query.setdefault("openkey", _api_key())
+
     if query:
         qs = urllib.parse.urlencode(query, doseq=True)
         url = url + ("?" + qs)
 
     headers = {
-        "Authorization": f"Bearer {_api_key()}",
         "Accept": "application/json",
     }
 
     data = None
     if body is not None:
+        if isinstance(body, dict):
+            body = {"openkey": _api_key(), **body}
         data = json.dumps(body, ensure_ascii=False).encode("utf-8")
         headers["Content-Type"] = "application/json"
 

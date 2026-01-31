@@ -16,6 +16,16 @@ This repo is intended to be:
 
 ## Conventions
 
+### Security note (important)
+
+OpenClaw and webhook receivers like `webhookd` can reduce risk with signatures, allowlists, dedupe, and loop-prevention — but **nothing is perfectly secure**.
+
+- Assume there is always some risk of prompt-injection, misconfiguration, or remote abuse.
+- Keep secrets out of repos.
+- Prefer running OpenClaw + local services **inside Docker** (or another sandbox) with minimal privileges.
+- Do not expose internal ports directly to the public Internet; use a tunnel/reverse proxy and keep auth enabled.
+
+
 ### Secrets & local-only files
 
 - **Never commit** `.env`, private keys, certificates, or machine-specific files.
