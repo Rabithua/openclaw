@@ -382,6 +382,7 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
     'Do:',
     '- Use GitHub CLI (`gh`) to fetch any additional context you need (avoid browser automation).',
     '- Draft a helpful, action-oriented response (not overly conservative).',
+    '- IMPORTANT formatting: write the final comment body to a UTF-8 text file with real newlines (no literal \\n sequences), then post using `--body-file` (preferred) or `--raw-field body=...`.',
     postHint,
     `- Append signature: “${OPENCLAW_SIGNATURE}”.`,
     '- Then summarize what you did and any next steps, and notify the user in Telegram.',
