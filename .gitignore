@@ -1,3 +1,6 @@
+# Build / artifacts
+dist/
+
 # Local secrets / certs
 *.key
 *.crt
