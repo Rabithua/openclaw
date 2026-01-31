@@ -239,9 +239,15 @@ function shouldIgnoreWebhook(
     return 'self_comment_signature';
   }
 
+  const ignore = getIgnoreActors();
+
+  // Extra guard: ignore when extracted context shows an ignored actor (covers cases where
+  // payload.sender differs from the content author, or sender is missing).
+  if (ctx.commentAuthor && ignore.has(ctx.commentAuthor)) return `comment_author_ignored:${ctx.commentAuthor}`;
+  if (ctx.author && ignore.has(ctx.author)) return `author_ignored:${ctx.author}`;
+
   if (isRecord(payload)) {
     const sender = payload.sender as GithubActor | undefined;
-    const ignore = getIgnoreActors();
     if (sender?.login && ignore.has(sender.login)) return `sender_ignored:${sender.login}`;
   }
 
