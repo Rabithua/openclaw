@@ -145,7 +145,11 @@ function extractGithubContext(
   throw new Error(`event_not_supported:${event}`);
 }
 
-const OPENCLAW_SIGNATURE = '——由 OpenClaw 助手代回复';
+function getReplySignature(): string {
+  return (Deno.env.get('GITHUB_REPLY_SIGNATURE') ?? '— replied by OpenClaw assistant').trim();
+}
+
+const OPENCLAW_SIGNATURE = getReplySignature();
 
 function getIgnoreActors(): Set<string> {
   const raw = (Deno.env.get('IGNORE_GITHUB_ACTORS') ?? '').trim();
@@ -274,7 +278,7 @@ function buildSystemEventText(ctx: ExtractedGithubContext): string {
   lines.push(
     'Instruction:',
     '- Please triage this event and (if appropriate) reply on GitHub.',
-    '- When posting a GitHub comment, append signature: “——由 OpenClaw 助手代回复”.',
+    `- When posting a GitHub comment, append signature: “${OPENCLAW_SIGNATURE}”.`,
   );
 
   return lines.join('\n');
@@ -379,7 +383,7 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
     '- Use GitHub CLI (`gh`) to fetch any additional context you need (avoid browser automation).',
     '- Draft a helpful, action-oriented response (not overly conservative).',
     postHint,
-    '- Append signature: “——由 OpenClaw 助手代回复”.',
+    `- Append signature: “${OPENCLAW_SIGNATURE}”.`,
     '- Then summarize what you did and any next steps, and notify the user in Telegram.',
     '',
     `Note: This was triggered by a GitHub ${issueOrPr} webhook event (${ctx.event}).`,

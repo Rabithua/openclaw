@@ -16,7 +16,7 @@ This is intentionally **small and dumb**:
   - `pull_request_review`
   - `pull_request_review_comment`
 - Safety guardrails:
-  - Avoid reply loops by ignoring comments that contain the signature `——由 OpenClaw 助手代回复`
+  - Avoid reply loops by ignoring comments that contain the configured signature (env `GITHUB_REPLY_SIGNATURE`)
   - Ignore specific GitHub actors (e.g. yourself / bots)
   - Only act on a small set of high-signal actions (to avoid double replies like `opened` + `labeled`)
   - Idempotency/dedupe cache (in-memory TTL) to avoid duplicates on retries
