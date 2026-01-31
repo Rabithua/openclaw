@@ -44,7 +44,11 @@ If you need a deterministic call from the host machine, use:
 
 - Treat API Keys as passwords.
 - Do not store API Keys in notes, repositories, or logs.
-- Prefer header auth: `Authorization: Bearer <API_KEY>`.
+- Prefer **least-privilege** OpenKeys.
+- Auth mechanism varies by deployment:
+  - Some deployments accept `Authorization: Bearer <API_KEY>`.
+  - Others require `openkey=<API_KEY>` (query) or `{"openkey": "..."}` (JSON body).
+  - This skill defaults to the latter when using the helper script.
 
 ## Reference
 
