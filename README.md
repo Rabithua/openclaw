@@ -26,6 +26,12 @@ OpenClaw and webhook receivers like `webhookd` can reduce risk with signatures, 
 - Do not expose internal ports directly to the public Internet; use a tunnel/reverse proxy and keep auth enabled.
 
 
+### Skills implementation default
+
+- New skills (especially helper CLIs under `skills/<name>/scripts/`) should default to **TypeScript + Deno**.
+- Prefer single-file Deno scripts (`.ts`) with explicit permissions (e.g. `--allow-net --allow-env`).
+- Avoid Python for new skills unless there is a strong reason (keep the toolchain consistent).
+
 ### Secrets & local-only files
 
 - **Never commit** `.env`, private keys, certificates, or machine-specific files.
