@@ -28,6 +28,10 @@ This is intentionally **small and dumb**:
 
 ## Setup
 
+For a complete “keep it running + public ingress + GitHub config” walkthrough, see:
+
+- **DEPLOY.md**: [Deploying webhookd](./DEPLOY.md)
+
 1) Copy env file:
 
 ```bash
