@@ -19,23 +19,29 @@
 type Json = Record<string, unknown>;
 
 function apiBase(): string {
-  const base = (Deno.env.get('ROTE_API_BASE') ?? '').trim() || 'https://api.rote.ink/v2/api';
-  return base.replace(/\/+$/, '');
+  const base = (Deno.env.get("ROTE_API_BASE") ?? "").trim() ||
+    "https://api.rote.ink/v2/api";
+  return base.replace(/\/+$/, "");
 }
 
 function apiKey(): string {
-  const key = (Deno.env.get('ROTE_API_KEY') ?? '').trim();
-  if (!key) throw new Error('Missing ROTE_API_KEY env var');
+  const key = (Deno.env.get("ROTE_API_KEY") ?? "").trim();
+  if (!key) throw new Error("Missing ROTE_API_KEY env var");
   return key;
 }
 
 function withOpenKeyQuery(url: URL): URL {
-  if (!url.searchParams.get('openkey')) url.searchParams.set('openkey', apiKey());
+  if (!url.searchParams.get("openkey")) {
+    url.searchParams.set("openkey", apiKey());
+  }
   return url;
 }
 
-async function request(method: string, path: string, opts?: { query?: Record<string, string | string[]>; body?: Json }):
-  Promise<unknown> {
+async function request(
+  method: string,
+  path: string,
+  opts?: { query?: Record<string, string | string[]>; body?: Json },
+): Promise<unknown> {
   const url = new URL(apiBase() + path);
 
   const query = opts?.query ?? {};
@@ -49,18 +55,18 @@ async function request(method: string, path: string, opts?: { query?: Record<str
   withOpenKeyQuery(url);
 
   const headers: Record<string, string> = {
-    'accept': 'application/json',
+    "accept": "application/json",
   };
 
   let body: string | undefined;
   if (opts?.body) {
     const payload: Json = { openkey: apiKey(), ...opts.body };
     body = JSON.stringify(payload);
-    headers['content-type'] = 'application/json';
+    headers["content-type"] = "application/json";
   }
 
   const resp = await fetch(url, { method, headers, body });
-  const text = await resp.text().catch(() => '');
+  const text = await resp.text().catch(() => "");
 
   let data: unknown = text;
   try {
@@ -70,7 +76,11 @@ async function request(method: string, path: string, opts?: { query?: Record<str
   }
 
   if (!resp.ok) {
-    throw new Error(`HTTP ${resp.status}: ${typeof data === 'string' ? data : JSON.stringify(data)}`);
+    throw new Error(
+      `HTTP ${resp.status}: ${
+        typeof data === "string" ? data : JSON.stringify(data)
+      }`,
+    );
   }
 
   return data;
@@ -96,25 +106,25 @@ function takeRepeatable(args: string[], name: string): string[] {
 
 async function main(argv: string[]): Promise<number> {
   const [cmd, ...args] = argv;
-  if (!cmd || cmd === '-h' || cmd === '--help') {
+  if (!cmd || cmd === "-h" || cmd === "--help") {
     console.log(
       `Rote OpenKey client\n\nCommands:\n  create --content <text> [--title <t>] [--tag <t> ...] [--pin] [--private|--public] [--type rote|other]\n  create-article --content <text>\n  list [--skip N] [--limit N] [--archived true|false] [--tag <t> ...]\n  search --keyword <kw> [--skip N] [--limit N] [--archived true|false] [--tag <t> ...]\n`,
     );
     return 0;
   }
 
-  if (cmd === 'create') {
-    const content = takeArg(args, '--content');
-    if (!content) throw new Error('Missing --content');
+  if (cmd === "create") {
+    const content = takeArg(args, "--content");
+    if (!content) throw new Error("Missing --content");
 
-    const title = takeArg(args, '--title');
-    const type = takeArg(args, '--type') ?? 'rote';
-    const tags = takeRepeatable(args, '--tag');
-    const pin = hasFlag(args, '--pin');
+    const title = takeArg(args, "--title");
+    const type = takeArg(args, "--type") ?? "rote";
+    const tags = takeRepeatable(args, "--tag");
+    const pin = hasFlag(args, "--pin");
 
-    const state = hasFlag(args, '--public') ? 'public' : 'private';
+    const state = hasFlag(args, "--public") ? "public" : "private";
 
-    const data = await request('POST', '/openkey/notes', {
+    const data = await request("POST", "/openkey/notes", {
       body: {
         content,
         title,
@@ -128,46 +138,46 @@ async function main(argv: string[]): Promise<number> {
     return 0;
   }
 
-  if (cmd === 'create-article') {
-    const content = takeArg(args, '--content');
-    if (!content) throw new Error('Missing --content');
+  if (cmd === "create-article") {
+    const content = takeArg(args, "--content");
+    if (!content) throw new Error("Missing --content");
 
-    const data = await request('POST', '/openkey/articles', {
+    const data = await request("POST", "/openkey/articles", {
       body: { content },
     });
     console.log(JSON.stringify(data, null, 2));
     return 0;
   }
 
-  if (cmd === 'list') {
-    const skip = takeArg(args, '--skip') ?? '0';
-    const limit = takeArg(args, '--limit') ?? '20';
-    const archived = takeArg(args, '--archived');
-    const tags = takeRepeatable(args, '--tag');
+  if (cmd === "list") {
+    const skip = takeArg(args, "--skip") ?? "0";
+    const limit = takeArg(args, "--limit") ?? "20";
+    const archived = takeArg(args, "--archived");
+    const tags = takeRepeatable(args, "--tag");
 
     const query: Record<string, string | string[]> = { skip, limit };
-    if (archived != null) query['archived'] = archived;
-    if (tags.length) query['tag'] = tags;
+    if (archived != null) query["archived"] = archived;
+    if (tags.length) query["tag"] = tags;
 
-    const data = await request('GET', '/openkey/notes', { query });
+    const data = await request("GET", "/openkey/notes", { query });
     console.log(JSON.stringify(data, null, 2));
     return 0;
   }
 
-  if (cmd === 'search') {
-    const keyword = takeArg(args, '--keyword');
-    if (!keyword) throw new Error('Missing --keyword');
+  if (cmd === "search") {
+    const keyword = takeArg(args, "--keyword");
+    if (!keyword) throw new Error("Missing --keyword");
 
-    const skip = takeArg(args, '--skip') ?? '0';
-    const limit = takeArg(args, '--limit') ?? '20';
-    const archived = takeArg(args, '--archived');
-    const tags = takeRepeatable(args, '--tag');
+    const skip = takeArg(args, "--skip") ?? "0";
+    const limit = takeArg(args, "--limit") ?? "20";
+    const archived = takeArg(args, "--archived");
+    const tags = takeRepeatable(args, "--tag");
 
     const query: Record<string, string | string[]> = { keyword, skip, limit };
-    if (archived != null) query['archived'] = archived;
-    if (tags.length) query['tag'] = tags;
+    if (archived != null) query["archived"] = archived;
+    if (tags.length) query["tag"] = tags;
 
-    const data = await request('GET', '/openkey/notes/search', { query });
+    const data = await request("GET", "/openkey/notes/search", { query });
     console.log(JSON.stringify(data, null, 2));
     return 0;
   }
