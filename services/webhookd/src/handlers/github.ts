@@ -243,7 +243,9 @@ function shouldIgnoreWebhook(
 
   // Extra guard: ignore when extracted context shows an ignored actor (covers cases where
   // payload.sender differs from the content author, or sender is missing).
-  if (ctx.commentAuthor && ignore.has(ctx.commentAuthor)) return `comment_author_ignored:${ctx.commentAuthor}`;
+  if (ctx.commentAuthor && ignore.has(ctx.commentAuthor)) {
+    return `comment_author_ignored:${ctx.commentAuthor}`;
+  }
   if (ctx.author && ignore.has(ctx.author)) return `author_ignored:${ctx.author}`;
 
   if (isRecord(payload)) {

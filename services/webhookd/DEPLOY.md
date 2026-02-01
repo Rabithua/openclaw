@@ -1,8 +1,10 @@
 # Deploying `webhookd` (production-ish)
 
-This guide shows a complete, practical setup for running `webhookd` as a long-lived service that receives GitHub webhooks, verifies them, and forwards a normalized event to OpenClaw.
+This guide shows a complete, practical setup for running `webhookd` as a long-lived service that
+receives GitHub webhooks, verifies them, and forwards a normalized event to OpenClaw.
 
-> `webhookd` is intentionally small: it **does not** contain your “business logic”. It only verifies + normalizes + forwards.
+> `webhookd` is intentionally small: it **does not** contain your “business logic”. It only
+> verifies + normalizes + forwards.
 
 ---
 
@@ -10,7 +12,8 @@ This guide shows a complete, practical setup for running `webhookd` as a long-li
 
 **Flow:**
 
-GitHub → (public URL) `webhookd` → `OpenClaw Gateway /tools/invoke` → `sessions_spawn` → your agent decides what to do.
+GitHub → (public URL) `webhookd` → `OpenClaw Gateway /tools/invoke` → `sessions_spawn` → your agent
+decides what to do.
 
 **You will configure:**
 
@@ -22,7 +25,8 @@ GitHub → (public URL) `webhookd` → `OpenClaw Gateway /tools/invoke` → `ses
 
 ## Prerequisites
 
-- OpenClaw Gateway running on the same machine (default `http://127.0.0.1:18789`) with token auth enabled.
+- OpenClaw Gateway running on the same machine (default `http://127.0.0.1:18789`) with token auth
+  enabled.
 - Deno 2.x (or Docker, see below).
 - A way to expose `webhookd` to GitHub (public URL):
   - Recommended: **Tailscale Funnel**
@@ -43,7 +47,8 @@ Edit `.env`:
 - `OPENCLAW_GATEWAY_TOKEN` (from `~/.openclaw/openclaw.json` → `gateway.auth.token`)
 - `GITHUB_WEBHOOK_SECRET` (generate and set the same value in GitHub webhook settings)
 
-**Important:** quote values that may confuse dotenv parsing (for example the long dash in the default signature):
+**Important:** quote values that may confuse dotenv parsing (for example the long dash in the
+default signature):
 
 ```env
 GITHUB_REPLY_SIGNATURE="— replied by OpenClaw assistant"
@@ -77,8 +82,8 @@ curl http://127.0.0.1:8787/healthz
 
 ### Option B: Docker (long-lived)
 
-This repo does not ship a Dockerfile for `webhookd` by default.
-If you prefer Docker, the simplest approach is to use the official Deno image and mount the code:
+This repo does not ship a Dockerfile for `webhookd` by default. If you prefer Docker, the simplest
+approach is to use the official Deno image and mount the code:
 
 ```bash
 docker run -d --name webhookd \
