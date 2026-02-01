@@ -97,7 +97,9 @@ function takeRepeatable(args: string[], name: string): string[] {
 async function main(argv: string[]): Promise<number> {
   const [cmd, ...args] = argv;
   if (!cmd || cmd === '-h' || cmd === '--help') {
-    console.log(`Rote OpenKey client\n\nCommands:\n  create --content <text> [--title <t>] [--tag <t> ...] [--pin] [--private|--public] [--type rote|article|other]\n  list [--skip N] [--limit N] [--archived true|false] [--tag <t> ...]\n  search --keyword <kw> [--skip N] [--limit N] [--archived true|false] [--tag <t> ...]\n`);
+    console.log(
+      `Rote OpenKey client\n\nCommands:\n  create --content <text> [--title <t>] [--tag <t> ...] [--pin] [--private|--public] [--type rote|other]\n  create-article --content <text>\n  list [--skip N] [--limit N] [--archived true|false] [--tag <t> ...]\n  search --keyword <kw> [--skip N] [--limit N] [--archived true|false] [--tag <t> ...]\n`,
+    );
     return 0;
   }
 
@@ -121,6 +123,17 @@ async function main(argv: string[]): Promise<number> {
         pin,
         state,
       },
+    });
+    console.log(JSON.stringify(data, null, 2));
+    return 0;
+  }
+
+  if (cmd === 'create-article') {
+    const content = takeArg(args, '--content');
+    if (!content) throw new Error('Missing --content');
+
+    const data = await request('POST', '/openkey/articles', {
+      body: { content },
     });
     console.log(JSON.stringify(data, null, 2));
     return 0;

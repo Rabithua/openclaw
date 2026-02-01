@@ -27,6 +27,11 @@ Use this skill to treat **Rote** as the user’s default note backend: capture n
   - tags include `inbox` (or a user-chosen default tag)
   - title optional
 
+### 1b) Create an article (OpenKey)
+
+- Use `POST /openkey/articles` with JSON body `{ content }`.
+- Requires OpenKey permission: `SENDARTICLE`.
+
 If you need a deterministic call from the host machine, use:
 - `scripts/rote_openkey.ts` (Deno, recommended)
 - `scripts/rote_openkey.py` (Python, kept as a fallback)
