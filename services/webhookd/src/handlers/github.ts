@@ -406,7 +406,7 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
     '  - PR review comment: `gh api -X POST repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions -f content=eyes`',
     '  - PR review: `gh api -X POST repos/{owner}/{repo}/pulls/reviews/{review_id}/reactions -f content=eyes`',
     '- Then draft a helpful, action-oriented response (not overly conservative).',
-    '- IMPORTANT formatting: write the final comment body to a UTF-8 text file with real newlines (no literal \\n sequences), then post using `--body-file` (preferred) or `--raw-field body=...`.',
+    '- IMPORTANT formatting: write the final comment body to a UTF-8 text file with real newlines (no literal \\n or /n sequences), then post using `--body-file` (preferred) or `--raw-field body=...`.',
     postHint,
     `- Append signature: “${OPENCLAW_SIGNATURE}”.`,
     '- Then summarize what you did and any next steps, and notify the user in Telegram.',
