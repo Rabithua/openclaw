@@ -82,21 +82,32 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
     `5. 笔记标签：${tags.join(", ")}`,
     "6. 所有笔记设为 private 状态",
     "",
+    "Rote API 配置信息：",
+    `- API Base: ${Deno.env.get("ROTE_API_BASE") ?? "https://api.rote.ink/v2/api"}`,
+    `- OpenKey: ${Deno.env.get("ROTE_OPENKEY") ?? ""}`,
+    "",
     "不需要创建所有内容的笔记，只挑选真正有价值的。处理完后简单总结一下即可。",
   ].join("\n");
 
   // 5. 发送给 OpenClaw
   const sessionLabel = `traveler-${new Date().toISOString().split("T")[0]}`;
+  
+  // 从环境变量读取 ROTE 配置
+  const roteApiBase = Deno.env.get("ROTE_API_BASE") ?? "https://api.rote.ink/v2/api";
+  const roteOpenkey = Deno.env.get("ROTE_OPENKEY") ?? "";
 
   try {
     await openclawToolsInvoke({
       gatewayUrl,
       gatewayToken,
-      tool: "sessions",
-      action: "spawn",
+      tool: "sessions_spawn",
       toolArgs: {
         label: sessionLabel,
         task: prompt,
+        env: {
+          ROTE_API_BASE: roteApiBase,
+          ROTE_OPENKEY: roteOpenkey,
+        },
       },
     });
 
