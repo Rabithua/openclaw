@@ -11,6 +11,7 @@ This repo is intended to be:
 
 - `services/`
   - `webhookd/` – a small Deno-based webhook receiver that verifies GitHub webhooks and forwards them to OpenClaw.
+  - `traveler/` – a Deno-based web reader bot that curates RSS items and writes notes to Rote.
 - `skills/`
   - `rote-notes/` – custom skill for interacting with a Rote instance.
 
@@ -113,6 +114,20 @@ If `tailscale cert` fails with `lookup ... no such host`, pin the relevant hostn
 Each skill is self-documented in its `SKILL.md`.
 
 - `skills/rote-notes/` – create/search/list notes via the Rote OpenKey API.
+
+## services/traveler
+
+`traveler` is a personality-driven web reader bot that fetches RSS sources, ranks items, and writes selected ones to Rote.
+
+### Quick start
+
+```bash
+cd services/traveler
+cp .env.example .env
+# edit .env
+
+deno task run -- run --config configs/default.yaml
+```
 
 ## Development
 

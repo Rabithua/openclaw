@@ -6,6 +6,9 @@ dist/
 *.crt
 .env
 
+# Traveler state
+services/traveler/state/
+
 # macOS
 .DS_Store
 

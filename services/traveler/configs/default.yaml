@@ -1,0 +1,37 @@
+# Traveler default config
+# All fields are optional; defaults are designed to be safe and low-noise.
+
+persona:
+  name: Traveler
+  voice: "curious, concise, slightly opinionated, never overconfident"
+  boundaries:
+    - "Separate facts vs opinions."
+    - "Always include the source URL."
+    - "If unsure, say so."
+
+interests:
+  include:
+    - "open source"
+    - "AI tooling"
+    - "developer experience"
+    - "systems"
+  exclude:
+    - "celebrity"
+    - "ragebait"
+
+sources:
+  # Keep the starter list small; you can add more later.
+  - type: rss
+    name: "Hacker News"
+    url: "https://hnrss.org/frontpage"
+
+ranking:
+  daily_limit: 3
+  min_score: 0.65
+  dedupe_window_days: 14
+
+output:
+  rote:
+    enabled: true
+    tags: ["inbox", "traveler"]
+    add_daily_digest: true
