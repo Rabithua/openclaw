@@ -1,0 +1,38 @@
+# Git
+.git
+.gitignore
+
+# 环境配置
+.env
+.env.*
+!.env.example
+
+# 本地数据
+.local/
+*.db
+*.sqlite
+
+# 文档
+*.md
+!README.md
+docs/
+tests/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 脚本
+quickstart.sh
+test-*.sh
+
+# Node（如果有）
+node_modules/
+
+# macOS
+.DS_Store
+
+# 日志
+*.log

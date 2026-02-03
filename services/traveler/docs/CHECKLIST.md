@@ -77,29 +77,35 @@
 ## 📁 新增文件总览
 
 ### 代码文件（3 个）
+
 ```
 src/server.ts              90 行    - HTTP 服务器主入口
 src/handlers/submit.ts     145 行   - 提交处理逻辑
 src/utils/auth.ts          52 行    - 认证验证
 src/utils/http.ts          11 行    - HTTP 工具
 ```
+
 **总计：298 行代码**
 
 ### 文档文件（3 个）
+
 ```
 SUBMIT_API.md              248 行   - API 参考文档
 SUBMIT_SETUP.md            337 行   - 快速开始指南
 IMPLEMENTATION_SUMMARY.md  330 行   - 实现总结
 ```
+
 **总计：915 行文档**
 
 ### 测试文件（2 个）
+
 ```
 tests/test-submit.sh                - 完整测试套件（bash + python）
 tests/test-curl-examples.sh         - 简单 curl 示例
 ```
 
 ### 修改文件（3 个）
+
 ```
 deno.json                  - 添加 server task
 mod.ts                     - 导出新的处理器和类型
@@ -145,10 +151,10 @@ curl -X POST http://localhost:8788/traveler/submit \
 
 ### 认证方式
 
-| 方式 | 使用场景 | 优点 |
-|------|--------|------|
-| API Token | 脚本/应用 | 简单直接 |
-| HMAC-SHA256 | Webhook | 防篡改 |
+| 方式        | 使用场景  | 优点     |
+| ----------- | --------- | -------- |
+| API Token   | 脚本/应用 | 简单直接 |
+| HMAC-SHA256 | Webhook   | 防篡改   |
 
 ### 安全机制
 
@@ -160,13 +166,13 @@ curl -X POST http://localhost:8788/traveler/submit \
 
 ## 📊 统计信息
 
-| 指标 | 数值 |
-|------|------|
-| 代码行数 | 298 |
-| 文档行数 | 915 |
-| 测试脚本 | 2 |
-| 新增文件 | 8 |
-| 修改文件 | 3 |
+| 指标     | 数值    |
+| -------- | ------- |
+| 代码行数 | 298     |
+| 文档行数 | 915     |
+| 测试脚本 | 2       |
+| 新增文件 | 8       |
+| 修改文件 | 3       |
 | 类型检查 | ✅ 通过 |
 
 ## 🧪 验证清单
@@ -181,27 +187,30 @@ curl -X POST http://localhost:8788/traveler/submit \
 
 ## 📚 文档导航
 
-| 文档 | 用途 |
-|------|------|
-| [SUBMIT_API.md](SUBMIT_API.md) | API 参考和详细文档 |
-| [SUBMIT_SETUP.md](SUBMIT_SETUP.md) | 快速开始和配置指南 |
-| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) | 技术实现细节 |
-| [tests/test-submit.sh](tests/test-submit.sh) | 运行完整测试 |
-| [tests/test-curl-examples.sh](tests/test-curl-examples.sh) | 查看 curl 示例 |
+| 文档                                                       | 用途               |
+| ---------------------------------------------------------- | ------------------ |
+| [SUBMIT_API.md](SUBMIT_API.md)                             | API 参考和详细文档 |
+| [SUBMIT_SETUP.md](SUBMIT_SETUP.md)                         | 快速开始和配置指南 |
+| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)     | 技术实现细节       |
+| [tests/test-submit.sh](tests/test-submit.sh)               | 运行完整测试       |
+| [tests/test-curl-examples.sh](tests/test-curl-examples.sh) | 查看 curl 示例     |
 
 ## 🎯 核心特性
 
 ### 接受通知
+
 - ✅ HTTP POST 端点接受用户提交
 - ✅ 支持单个或多个项目（最多100）
 - ✅ 灵活的 JSON 格式
 
 ### 自动处理
+
 - ✅ 自动去重（7天窗口）
 - ✅ 自动评分和筛选
 - ✅ 自动写入 Rote 笔记系统
 
 ### 简单安全
+
 - ✅ API Token 认证
 - ✅ HMAC-SHA256 签名验证
 - ✅ 请求验证和限制
@@ -229,6 +238,7 @@ Rote 写入 (API 调用)
 ## 💡 使用示例
 
 ### Bash/cURL
+
 ```bash
 curl -X POST http://localhost:8788/traveler/submit \
   -H "X-API-Token: token" \
@@ -237,6 +247,7 @@ curl -X POST http://localhost:8788/traveler/submit \
 ```
 
 ### Python
+
 ```python
 import requests
 requests.post('http://localhost:8788/traveler/submit',
@@ -245,6 +256,7 @@ requests.post('http://localhost:8788/traveler/submit',
 ```
 
 ### JavaScript
+
 ```javascript
 fetch('http://localhost:8788/traveler/submit', {
   method: 'POST',
@@ -264,7 +276,7 @@ fetch('http://localhost:8788/traveler/submit', {
 
 ---
 
-**状态**：✅ 生产就绪  
-**版本**：1.0.0  
-**测试**：✅ 通过  
+**状态**：✅ 生产就绪\
+**版本**：1.0.0\
+**测试**：✅ 通过\
 **文档**：✅ 完整

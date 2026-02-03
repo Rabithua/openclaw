@@ -2,17 +2,21 @@
 
 ## Introduction
 
-The API Key (OpenKey) feature allows external applications to interact with the Rote platform programmatically without requiring user login. This document provides detailed information on how to use API Keys to create and retrieve notes.
+The API Key (OpenKey) feature allows external applications to interact with the
+Rote platform programmatically without requiring user login. This document
+provides detailed information on how to use API Keys to create and retrieve
+notes.
 
 ## Authentication
 
-All API Key requests must include the `openkey` parameter. This can be done in two ways:
+All API Key requests must include the `openkey` parameter. This can be done in
+two ways:
 
-1.  **Query Parameter** (Recommended for GET requests):
-    `https://your-api-url/v2/api/openkey/endpoint?openkey=YOUR_API_KEY`
+1. **Query Parameter** (Recommended for GET requests):
+   `https://your-api-url/v2/api/openkey/endpoint?openkey=YOUR_API_KEY`
 
-2.  **Request Body** (Recommended for POST/PUT/DELETE requests):
-    Include `"openkey": "YOUR_API_KEY"` in the JSON body.
+2. **Request Body** (Recommended for POST/PUT/DELETE requests): Include
+   `"openkey": "YOUR_API_KEY"` in the JSON body.
 
 ## Permissions
 
@@ -26,7 +30,8 @@ API Keys can have the following permissions:
 - `DELETEREACTION`: Allows deleting reactions from notes
 - `EDITPROFILE`: Allows getting and updating user profile
 
-When generating or updating an API Key, you can specify which permissions it should have.
+When generating or updating an API Key, you can specify which permissions it
+should have.
 
 ## Endpoints
 
@@ -87,7 +92,8 @@ When generating or updating an API Key, you can specify which permissions it sho
 - `state`: Note state (private or public, defaults to private)
 - `type`: Note type (defaults to "Rote")
 - `title`: Optional title
-- `tag`: Tags (can be multiple, e.g., `tag=tag1&tag=tag2`, each tag max 50 characters, max 20 tags)
+- `tag`: Tags (can be multiple, e.g., `tag=tag1&tag=tag2`, each tag max 50
+  characters, max 20 tags)
 - `pin`: Whether to pin the note (true/false)
 - `articleId`: Optional article ID to bind
 
@@ -144,8 +150,10 @@ When generating or updating an API Key, you can specify which permissions it sho
 - `skip`: Number of items to skip (pagination)
 - `limit`: Maximum number of items to return (pagination)
 - `archived`: Whether to include archived notes (true/false)
-- `tag`: Tag filter, supports `tag` or `tag[]` format (multiple tags use `hasEvery` logic - notes must contain all specified tags)
-- _Note_: Any other query parameters provided will be used as exact match filters against note fields.
+- `tag`: Tag filter, supports `tag` or `tag[]` format (multiple tags use
+  `hasEvery` logic - notes must contain all specified tags)
+- _Note_: Any other query parameters provided will be used as exact match
+  filters against note fields.
 
 **Response**:
 
@@ -372,7 +380,8 @@ All fields are optional. Username validation:
 
 ## Error Handling
 
-API errors are returned with appropriate HTTP status codes and a JSON response with error details.
+API errors are returned with appropriate HTTP status codes and a JSON response
+with error details.
 
 Example error response:
 
@@ -389,4 +398,5 @@ Common error codes:
 - 401: Invalid or expired API key
 - 403: Insufficient permissions
 - 400: Missing required parameters or invalid request
-- 400: Input length exceeds limit (title > 200 chars, content > 1,000,000 chars, tag > 50 chars, or > 20 tags)
+- 400: Input length exceeds limit (title > 200 chars, content > 1,000,000 chars,
+  tag > 50 chars, or > 20 tags)

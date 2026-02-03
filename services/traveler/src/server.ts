@@ -1,7 +1,12 @@
 import { parse as parseYaml } from "jsr:@std/yaml";
 import { handleSubmit, type SubmitRequest } from "./handlers/submit.ts";
 import { json, readJsonBody } from "./utils/http.ts";
-import { validateApiToken, validateHmacSignature, getAuthToken, getSignature } from "./utils/auth.ts";
+import {
+  getAuthToken,
+  getSignature,
+  validateApiToken,
+  validateHmacSignature,
+} from "./utils/auth.ts";
 import type { TravelerConfig } from "./core/types.ts";
 
 const PORT = Number(Deno.env.get("TRAVELER_PORT") ?? "8788");

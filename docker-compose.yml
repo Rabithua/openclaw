@@ -1,0 +1,49 @@
+services:
+  # Traveler - RSS 订阅助手
+  traveler:
+    build: ./services/traveler
+    container_name: openclaw-traveler
+    restart: unless-stopped
+    ports:
+      - "8788:8788"
+    environment:
+      # 从环境变量或 .env 文件读取
+      OPENCLAW_GATEWAY_URL: ${OPENCLAW_GATEWAY_URL:-}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      ROTE_API_BASE: ${ROTE_API_BASE:-https://api.rote.ink/v2/api}
+      ROTE_OPENKEY: ${ROTE_OPENKEY:-}
+      TRAVELER_PORT: ${TRAVELER_PORT:-8788}
+      TRAVELER_API_TOKEN: ${TRAVELER_API_TOKEN:-}
+      TRAVELER_HMAC_SECRET: ${TRAVELER_HMAC_SECRET:-}
+    volumes:
+      - traveler-data:/app/.local
+    networks:
+      - openclaw
+
+  # Webhookd - GitHub webhook 接收器
+  webhookd:
+    build: ./services/webhookd
+    container_name: openclaw-webhookd
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      # 从环境变量或 .env 文件读取
+      WEBHOOKD_PORT: ${WEBHOOKD_PORT:-8787}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+      OPENCLAW_GATEWAY_URL: ${OPENCLAW_GATEWAY_URL:-}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      IGNORE_GITHUB_ACTORS: ${IGNORE_GITHUB_ACTORS:-}
+      GITHUB_REPLY_SIGNATURE: ${GITHUB_REPLY_SIGNATURE:-— replied by OpenClaw assistant}
+      DEDUPE_TTL_MS: ${DEDUPE_TTL_MS:-3600000}
+    volumes:
+      - webhookd-data:/app/.local
+    networks:
+      - openclaw
+
+volumes:
+  traveler-data:
+  webhookd-data:
+
+networks:
+  openclaw:

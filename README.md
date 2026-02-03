@@ -2,18 +2,51 @@
 
 Personal **OpenClaw** repository containing the **skills** and **local services** that I maintain and deploy for my own workflow.
 
-This repo is intended to be:
-- **Portable**: clone on a new machine and re-run the same setup.
-- **Safe**: no secrets committed.
-- **Practical**: focuses on automation glue (webhooks, triage, replies), not business logic.
+## 快速开始
+
+```bash
+# 1. 配置环境变量
+cp services/traveler/.env.example services/traveler/.env
+cp services/webhookd/.env.example services/webhookd/.env
+
+# 编辑配置文件
+vim services/traveler/.env
+vim services/webhookd/.env
+
+# 2. 启动所有服务
+docker-compose up -d
+
+# 3. 查看日志
+docker-compose logs -f
+```
+
+## 服务说明
+
+### Traveler (端口 8788)
+RSS 订阅助手 - 抓取 RSS，交给 OpenClaw AI 筛选，发布到 Rote
+- 健康检查: `curl http://localhost:8788/healthz`
+- 手动抓取: `docker-compose exec traveler deno task run`
+
+### Webhookd (端口 8787)
+GitHub webhook 接收器 - 转发 GitHub 事件到 OpenClaw
+- 健康检查: `curl http://localhost:8787/healthz`
+
+## 常用命令
+
+```bash
+docker-compose up -d           # 启动
+docker-compose down            # 停止
+docker-compose logs -f         # 查看日志
+docker-compose restart traveler # 重启服务
+```
 
 ## Repository layout
 
 - `services/`
-  - `webhookd/` – a small Deno-based webhook receiver that verifies GitHub webhooks and forwards them to OpenClaw.
-  - `traveler/` – a Deno-based web reader bot that curates RSS items and writes notes to Rote.
+  - `webhookd/` – GitHub webhook receiver
+  - `traveler/` – AI-driven RSS reader
 - `skills/`
-  - `rote-notes/` – custom skill for interacting with a Rote instance.
+  - `rote-notes/` – Rote API skill
 
 ## Conventions
 
@@ -48,98 +81,13 @@ Automated GitHub replies should end with a consistent signature.
 
 This signature is also used for **loop prevention** (the webhook service ignores comments containing the signature).
 
-## services/webhookd
+## 详细配置
 
-`webhookd` is a thin forwarder:
+### Traveler
+详见 [services/traveler/README.md](services/traveler/README.md)
 
-1) verifies GitHub signatures (`X-Hub-Signature-256`)
-2) applies guardrails (ignore actors, ignore self-comments, action allowlist, idempotency)
-3) forwards a structured envelope to OpenClaw via `POST /tools/invoke` (typically `sessions_spawn`)
+### Webhookd  
+详见 [services/webhookd/README.md](services/webhookd/README.md)
 
-### Supported GitHub events
-
-- `issues` (acts on `opened`)
-- `issue_comment` (acts on `created`, ignores self-comments)
-- `pull_request` (acts on `opened`, `reopened`, `ready_for_review`)
-- `pull_request_review` (acts on `submitted`)
-- `pull_request_review_comment` (acts on `created`, ignores self-comments)
-
-### Quick start
-
-```bash
-cd services/webhookd
-cp .env.example .env
-# edit .env
-
-deno task start
-# or: deno run -A --env-file=.env mod.ts
-```
-
-Health check:
-
-```bash
-curl http://127.0.0.1:8787/healthz
-```
-
-### Exposing webhookd publicly (Tailscale Funnel)
-
-Recommended approach for home networks / CGNAT:
-
-```bash
-tailscale cert <your-node>.ts.net
-tailscale funnel --bg http://127.0.0.1:8787
-```
-
-Then set GitHub webhook URL to:
-
-- `https://<your-node>.ts.net/webhook`
-
-### Avoiding reply loops & duplicates
-
-`webhookd` includes guardrails to avoid spam:
-
-- ignores comments that contain the configured signature
-- ignores configured actors (`IGNORE_GITHUB_ACTORS`)
-- dedupes deliveries for a TTL window (`DEDUPE_TTL_MS`)
-- only acts on high-signal actions (to avoid double replies like `opened` + `labeled`)
-
-### macOS note (Surge gateway / weird DNS)
-
-If you run Surge in TUN/gateway mode, macOS DNS may point to a virtual resolver (e.g. `198.18.x.x`).
-In that case `nslookup` can look wrong even when `/etc/hosts` works.
-If `tailscale cert` fails with `lookup ... no such host`, pin the relevant hostnames in `/etc/hosts` temporarily.
-
-## Skills
-
-Each skill is self-documented in its `SKILL.md`.
-
-- `skills/rote-notes/` – create/search/list notes via the Rote OpenKey API.
-
-## services/traveler
-
-`traveler` is a personality-driven web reader bot that fetches RSS sources, ranks items, and writes selected ones to Rote.
-
-### Quick start
-
-```bash
-cd services/traveler
-cp .env.example .env
-# edit .env
-
-deno task run -- run --config configs/default.yaml
-```
-
-## Development
-
-```bash
-# webhookd
-cd services/webhookd
-
-deno fmt
-
-deno check mod.ts
-```
-
-## License
-
-Personal repository; add a license if you plan to reuse/distribute.
+### Skills
+- `skills/rote-notes/` – Rote API skill

@@ -1,37 +1,39 @@
-# Traveler default config
-# All fields are optional; defaults are designed to be safe and low-noise.
+# Traveler 配置 - 简化版
+# 现在完全由 OpenClaw AI 决策，不需要复杂的评分规则
 
 persona:
   name: Traveler
-  voice: "curious, concise, slightly opinionated, never overconfident"
+  voice: "好奇、简洁、有见地但不过度自信"
   boundaries:
-    - "Separate facts vs opinions."
-    - "Always include the source URL."
-    - "If unsure, say so."
+    - "区分事实和观点"
+    - "始终包含原文链接"
+    - "不确定的事情要说出来"
 
 interests:
   include:
-    - "open source"
-    - "AI tooling"
-    - "developer experience"
-    - "systems"
+    - "开源项目"
+    - "AI 工具"
+    - "开发者体验"
+    - "系统设计"
   exclude:
-    - "celebrity"
-    - "ragebait"
+    - "明星八卦"
+    - "rage bait"
+    - "标题党"
 
 sources:
-  # Keep the starter list small; you can add more later.
+  # 添加你感兴趣的 RSS 订阅源
   - type: rss
     name: "Hacker News"
     url: "https://hnrss.org/frontpage"
 
+  # 更多订阅源示例：
+  # - type: rss
+  #   name: "阮一峰的网络日志"
+  #   url: "https://www.ruanyifeng.com/blog/atom.xml"
+
 ranking:
-  daily_limit: 3
-  min_score: 0.65
-  dedupe_window_days: 14
+  dedupe_window_days: 7 # 去重窗口（天），避免重复处理同一条内容
 
 output:
   rote:
-    enabled: true
-    tags: ["inbox", "traveler"]
-    add_daily_digest: true
+    tags: ["inbox", "traveler"] # 发布到 Rote 的标签

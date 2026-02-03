@@ -39,18 +39,19 @@ deno run -A src/server.ts
 
 **字段说明**：
 
-| 字段 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| `source_name` | string | ✓ | 信息源名称（用于标记内容来源） |
-| `feed_items` | array | ✓ | 项目数组，最多 100 项 |
-| `feed_items[].title` | string | ✓ | 项目标题 |
-| `feed_items[].url` | string | ✓ | 项目链接（必须是 http/https） |
-| `feed_items[].summary` | string | - | 项目摘要或描述 |
-| `feed_items[].published_at` | string | - | 发布时间（ISO 8601 格式） |
+| 字段                        | 类型   | 必需 | 说明                           |
+| --------------------------- | ------ | ---- | ------------------------------ |
+| `source_name`               | string | ✓    | 信息源名称（用于标记内容来源） |
+| `feed_items`                | array  | ✓    | 项目数组，最多 100 项          |
+| `feed_items[].title`        | string | ✓    | 项目标题                       |
+| `feed_items[].url`          | string | ✓    | 项目链接（必须是 http/https）  |
+| `feed_items[].summary`      | string | -    | 项目摘要或描述                 |
+| `feed_items[].published_at` | string | -    | 发布时间（ISO 8601 格式）      |
 
 **响应格式**：
 
 成功 (200):
+
 ```json
 {
   "ok": true,
@@ -61,6 +62,7 @@ deno run -A src/server.ts
 ```
 
 失败 (400/401/500):
+
 ```json
 {
   "ok": false,
@@ -132,23 +134,23 @@ interests:
     - "advertisement"
 
 ranking:
-  min_score: 0.3          # 最低评分阈值 (0-1)
-  dedupe_window_days: 7   # 去重时间窗口
-  daily_limit: 50         # 每日处理上限
+  min_score: 0.3 # 最低评分阈值 (0-1)
+  dedupe_window_days: 7 # 去重时间窗口
+  daily_limit: 50 # 每日处理上限
 
 persona:
-  name: "Traveler"        # 笔记作者名称
+  name: "Traveler" # 笔记作者名称
 ```
 
 ## 错误响应
 
-| HTTP 状态 | 错误码 | 说明 |
-|----------|--------|------|
-| 400 | `invalid_json` | JSON 解析错误 |
-| 400 | `invalid_request` | 请求体验证失败 |
-| 401 | `unauthorized` | 认证失败 |
-| 404 | `not_found` | 端点不存在 |
-| 500 | `internal_error` | 服务器内部错误 |
+| HTTP 状态 | 错误码            | 说明           |
+| --------- | ----------------- | -------------- |
+| 400       | `invalid_json`    | JSON 解析错误  |
+| 400       | `invalid_request` | 请求体验证失败 |
+| 401       | `unauthorized`    | 认证失败       |
+| 404       | `not_found`       | 端点不存在     |
+| 500       | `internal_error`  | 服务器内部错误 |
 
 ## 使用示例
 
@@ -195,30 +197,30 @@ print(result)
 ### JavaScript/Node.js
 
 ```javascript
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 async function submitItems(items, sourceName = "my-source") {
   const body = JSON.stringify({
     source_name: sourceName,
-    feed_items: items
+    feed_items: items,
   });
-  
+
   // 使用 HMAC 签名
   const secret = process.env.TRAVELER_HMAC_SECRET;
-  const signature = 'sha256=' + crypto
-    .createHmac('sha256', secret)
+  const signature = "sha256=" + crypto
+    .createHmac("sha256", secret)
     .update(body)
-    .digest('hex');
-  
-  const resp = await fetch('http://localhost:8788/traveler/submit', {
-    method: 'POST',
+    .digest("hex");
+
+  const resp = await fetch("http://localhost:8788/traveler/submit", {
+    method: "POST",
     headers: {
-      'X-Signature': signature,
-      'Content-Type': 'application/json'
+      "X-Signature": signature,
+      "Content-Type": "application/json",
     },
-    body
+    body,
   });
-  
+
   return resp.json();
 }
 
@@ -228,8 +230,8 @@ const result = await submitItems([
     title: "New Article",
     url: "https://blog.example.com/post",
     summary: "Interesting insights",
-    published_at: "2024-01-15T10:00:00Z"
-  }
+    published_at: "2024-01-15T10:00:00Z",
+  },
 ]);
 
 console.log(result);

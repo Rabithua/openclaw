@@ -1,0 +1,9 @@
+.git
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+.local/
+*.log
+.DS_Store

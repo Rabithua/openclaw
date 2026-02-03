@@ -1,6 +1,8 @@
 # Traveler 信息源提交接口
 
-在 OpenClaw Traveler 服务中添加了一个新的接受通知和信息源提交的接口（`/traveler/submit`）。这允许用户主动向系统提交信息源项，由 OpenClaw 自动阅读和处理。
+在 OpenClaw Traveler
+服务中添加了一个新的接受通知和信息源提交的接口（`/traveler/submit`）。这允许用户主动向系统提交信息源项，由
+OpenClaw 自动阅读和处理。
 
 ## 快速开始
 
@@ -17,6 +19,10 @@ TRAVELER_HMAC_SECRET=your-hmac-secret-key-here
 
 # 可选：自定义端口（默认 8788）
 TRAVELER_PORT=8788
+
+# 可选：使用 OpenClaw 进行评分（未配置则退回本地启发式评分）
+OPENCLAW_GATEWAY_URL=http://127.0.0.1:18789
+OPENCLAW_GATEWAY_TOKEN=your-openclaw-gateway-token
 ```
 
 ### 2. 启动服务
@@ -30,6 +36,7 @@ deno run -A --env-file=.env src/server.ts
 ```
 
 服务会输出：
+
 ```
 ✓ Traveler submit server listening on http://127.0.0.1:8788
   POST /traveler/submit - Submit feed items
@@ -62,12 +69,14 @@ curl -X POST http://localhost:8788/traveler/submit \
 ## 新增文件
 
 ### 核心处理器
+
 - **`src/handlers/submit.ts`** - 提交请求处理和验证逻辑
 - **`src/utils/auth.ts`** - 认证验证（API Token 和 HMAC-SHA256）
 - **`src/utils/http.ts`** - HTTP 工具函数
 - **`src/server.ts`** - 主服务器入口
 
 ### 文档和测试
+
 - **`SUBMIT_API.md`** - 完整的 API 文档
 - **`.env.example`** - 已更新，包含新的环境变量说明
 - **`tests/test-submit.sh`** - 测试脚本（bash）
@@ -111,9 +120,9 @@ interests:
 
 # 排名和处理规则
 ranking:
-  min_score: 0.3           # 项目最低评分（0-1）
-  dedupe_window_days: 7    # 去重时间窗口
-  daily_limit: 50          # 每日处理上限
+  min_score: 0.3 # 项目最低评分（0-1）
+  dedupe_window_days: 7 # 去重时间窗口
+  daily_limit: 50 # 每日处理上限
 
 # 输出配置
 output:
@@ -141,6 +150,7 @@ output:
 ```
 
 常见错误：
+
 - `unauthorized: invalid or missing credentials` (401)
 - `invalid_json` (400)
 - `invalid_request: source_name and feed_items are required` (400)
@@ -186,28 +196,28 @@ print(result)
 ### Node.js/TypeScript
 
 ```typescript
-import crypto from 'crypto';
+import crypto from "crypto";
 
 async function submitWithHmac(items: any[], sourceNme: string, secret: string) {
   const body = JSON.stringify({
     source_name: sourceName,
-    feed_items: items
+    feed_items: items,
   });
-  
-  const signature = 'sha256=' + crypto
-    .createHmac('sha256', secret)
+
+  const signature = "sha256=" + crypto
+    .createHmac("sha256", secret)
     .update(body)
-    .digest('hex');
-  
-  const response = await fetch('http://localhost:8788/traveler/submit', {
-    method: 'POST',
+    .digest("hex");
+
+  const response = await fetch("http://localhost:8788/traveler/submit", {
+    method: "POST",
     headers: {
-      'X-Signature': signature,
-      'Content-Type': 'application/json'
+      "X-Signature": signature,
+      "Content-Type": "application/json",
     },
-    body
+    body,
   });
-  
+
   return response.json();
 }
 ```
@@ -219,7 +229,7 @@ name: Submit Articles to Traveler
 
 on:
   schedule:
-    - cron: '0 */4 * * *'  # 每 4 小时运行一次
+    - cron: "0 */4 * * *" # 每 4 小时运行一次
 
 jobs:
   submit:
@@ -301,28 +311,31 @@ curl -X POST http://localhost:8788/traveler/submit \
 
 ## 环境变量参考
 
-| 变量 | 必需 | 默认值 | 说明 |
-|------|------|--------|------|
-| `TRAVELER_API_TOKEN` | ✓ | - | API 认证 Token |
-| `TRAVELER_HMAC_SECRET` | - | - | HMAC 签名密钥 |
-| `TRAVELER_PORT` | - | 8788 | 服务监听端口 |
-| `TRAVELER_CONFIG` | - | configs/default.yaml | 配置文件路径 |
-| `ROTE_API_BASE` | ✓ | - | Rote API 地址 |
-| `ROTE_OPENKEY` | ✓ | - | Rote API Key |
+| 变量                   | 必需 | 默认值               | 说明           |
+| ---------------------- | ---- | -------------------- | -------------- |
+| `TRAVELER_API_TOKEN`   | ✓    | -                    | API 认证 Token |
+| `TRAVELER_HMAC_SECRET` | -    | -                    | HMAC 签名密钥  |
+| `TRAVELER_PORT`        | -    | 8788                 | 服务监听端口   |
+| `TRAVELER_CONFIG`      | -    | configs/default.yaml | 配置文件路径   |
+| `ROTE_API_BASE`        | ✓    | -                    | Rote API 地址  |
+| `ROTE_OPENKEY`         | ✓    | -                    | Rote API Key   |
 
 ## 故障排除
 
 **问题：401 Unauthorized**
+
 - 检查 `TRAVELER_API_TOKEN` 是否正确设置
 - 确保请求头中的 token 与环境变量匹配
 - 对于 HMAC，检查签名计算是否正确
 
 **问题：500 Internal Error**
+
 - 检查 `ROTE_API_BASE` 和 `ROTE_OPENKEY` 是否正确配置
 - 查看服务器日志了解详细错误信息
 - 确保 Rote API 服务可访问
 
 **问题：项目被拒绝（rejected）**
+
 - 检查配置的 `min_score` 阈值
 - 验证 `interests.exclude` 是否过滤了该项目
 - 检查 `dedupe_window_days` 是否导致重复检查
