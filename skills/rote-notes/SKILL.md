@@ -10,10 +10,11 @@ Use this skill to treat **Rote** as the user’s default note backend: capture n
 ## Quick setup checklist (one-time)
 
 1. Get the user’s **API base** (their self-hosted domain).
-   - Example: `https://notes.example.com/v2/api`
-2. Get an **API Key** created in Rote with least privilege:
-   - `SENDROTE` (create)
-   - `GETROTE` (list/search) if needed
+  - Example: `https://notes.example.com/v2/api`
+2. Get an **API Key (OpenKey)** created in Rote with least privilege:
+  - `SENDROTE` (create notes)
+  - `GETROTE` (list/search notes)
+  - Optional: `SENDARTICLE`, `ADDREACTION`, `DELETEREACTION`, `EDITPROFILE` as needed
 3. **Never ask the user to paste keys into public chats.** If they already pasted a key, tell them to revoke/rotate it.
 
 ## Core tasks
@@ -51,10 +52,20 @@ If you need a deterministic call from the host machine, use:
 - Treat API Keys as passwords.
 - Do not store API Keys in notes, repositories, or logs.
 - Prefer **least-privilege** OpenKeys.
-- Auth mechanism varies by deployment:
-  - Some deployments accept `Authorization: Bearer <API_KEY>`.
-  - Others require `openkey=<API_KEY>` (query) or `{"openkey": "..."}` (JSON body).
-  - This skill defaults to the latter when using the helper script.
+## Authentication rules
+
+- All OpenKey requests must include `openkey`.
+  - **GET**: use query param `?openkey=...`
+  - **POST/PUT/DELETE**: include `{"openkey": "..."}` in JSON body
+- The helper script already applies this behavior.
+
+## Additional supported tasks (if requested)
+
+- Add reaction: `POST /openkey/reactions` (`ADDREACTION`)
+- Remove reaction: `DELETE /openkey/reactions/:roteid/:type` (`DELETEREACTION`)
+- Get profile: `GET /openkey/profile` (`EDITPROFILE`)
+- Update profile: `PUT /openkey/profile` (`EDITPROFILE`)
+- Check permissions: `GET /openkey/permissions`
 
 ## Reference
 
