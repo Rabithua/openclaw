@@ -5,6 +5,8 @@ import type { TravelerConfig } from "./src/core/types.ts";
 
 export { runOnce } from "./src/core/pipeline.ts";
 export type { TravelerConfig } from "./src/core/types.ts";
+export { handleSubmit, type SubmitRequest, type SubmitResponse } from "./src/handlers/submit.ts";
+export { validateApiToken, validateHmacSignature } from "./src/utils/auth.ts";
 
 function usage(): void {
   console.log(

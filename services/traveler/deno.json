@@ -7,6 +7,7 @@
     "check": "deno check mod.ts",
     "run": "deno run -A --env-file=.env mod.ts",
     "run:once": "deno run -A --env-file=.env mod.ts run --config configs/default.yaml",
-    "run:daily": "deno run -A --env-file=.env mod.ts run --config configs/default.yaml"
+    "run:daily": "deno run -A --env-file=.env mod.ts run --config configs/default.yaml",
+    "server": "deno run -A --env-file=.env src/server.ts"
   }
 }
