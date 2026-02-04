@@ -2,6 +2,7 @@ import { fetchRss } from "./rss.ts";
 import { isSeen, markSeen } from "./dedupe.ts";
 import { openclawToolsInvoke } from "../utils/openclaw.ts";
 import type { FeedItem, TravelerConfig } from "./types.ts";
+import { generateCuratorPrompt } from "./prompt.ts";
 
 /**
  * 简化版流程：直接把 RSS 内容发给 OpenClaw，让 AI 自己决定
@@ -46,55 +47,11 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   console.log(`✨ 发现 ${newItems.length} 条新内容，交给 OpenClaw 处理...`);
 
   // 4. 构建任务提示词
-  const persona = cfg.persona?.name ?? "Traveler";
-  const voice = cfg.persona?.voice ?? "curious, concise";
-  const boundaries = cfg.persona?.boundaries ?? [];
-  const interests = cfg.interests?.include ?? [];
-  const exclude = cfg.interests?.exclude ?? [];
-  const tags = cfg.output?.rote?.tags ?? ["inbox", "traveler"];
 
-  const prompt = [
-    `你是 ${persona}，一个智能信息策展助手。`,
-    `语气：${voice}`,
-    "",
-    "你的原则：",
-    ...boundaries.map((b) => `- ${b}`),
-    "",
-    "兴趣方向：",
-    ...interests.map((i) => `- ${i}`),
-    "",
-    exclude.length ? "不感兴趣：" : "",
-    ...exclude.map((e) => `- ${e}`),
-    "",
-    "---",
-    "",
-    "下面是从各个订阅源获取的新内容（JSON 格式）：",
-    "",
-    "```json",
-    JSON.stringify(newItems, null, 2),
-    "```",
-    "",
-    "请你：",
-    "1. 浏览这些内容，根据兴趣方向挑选出值得关注的",
-    "2. 对于每条你认为有价值的内容，使用 Rote 工具创建笔记",
-    "3. 笔记标题格式：[来源] 标题（不超过 200 字符）",
-    "4. 笔记正文包含：原文链接、发布时间、摘要、你的推荐理由",
-    `5. 笔记标签：${tags.join(", ")}`,
-    "6. 所有笔记设为 private 状态",
-    "",
-    "Rote API 配置信息：",
-    `- API Base: ${Deno.env.get("ROTE_API_BASE") ?? "https://api.rote.ink/v2/api"}`,
-    `- OpenKey: ${Deno.env.get("ROTE_OPENKEY") ?? ""}`,
-    "",
-    "不需要创建所有内容的笔记，只挑选真正有价值的。处理完后简单总结一下即可。",
-  ].join("\n");
+  const prompt = generateCuratorPrompt(cfg, newItems);
 
   // 5. 发送给 OpenClaw
   const sessionLabel = `traveler-${new Date().toISOString().split("T")[0]}`;
-  
-  // 从环境变量读取 ROTE 配置
-  const roteApiBase = Deno.env.get("ROTE_API_BASE") ?? "https://api.rote.ink/v2/api";
-  const roteOpenkey = Deno.env.get("ROTE_OPENKEY") ?? "";
 
   try {
     await openclawToolsInvoke({
@@ -104,10 +61,6 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
       toolArgs: {
         label: sessionLabel,
         task: prompt,
-        env: {
-          ROTE_API_BASE: roteApiBase,
-          ROTE_OPENKEY: roteOpenkey,
-        },
       },
     });
 

@@ -39,25 +39,18 @@ function scoreItemHeuristic(item: FeedItem, cfg: TravelerConfig): SelectedItem {
   return { ...item, score, reasons };
 }
 
-function getOpenClawConfig():
-  | { gatewayUrl: string; gatewayToken: string }
-  | null {
+function getOpenClawConfig(): { gatewayUrl: string; gatewayToken: string } | null {
   const gatewayUrl = (Deno.env.get("OPENCLAW_GATEWAY_URL") ?? "").trim();
   const gatewayToken = (Deno.env.get("OPENCLAW_GATEWAY_TOKEN") ?? "").trim();
   if (!gatewayUrl || !gatewayToken) return null;
   return { gatewayUrl, gatewayToken };
 }
 
-function formatTask(
-  items: FeedItem[],
-  cfg: TravelerConfig,
-  sourceLabel: string,
-): string {
+function formatTask(items: FeedItem[], cfg: TravelerConfig, sourceLabel: string): string {
   const persona = cfg.persona?.name ?? "Traveler";
   const minScore = cfg.ranking?.min_score ?? 0.3;
   const dedupeDays = cfg.ranking?.dedupe_window_days ?? 7;
-  const tags = cfg.output?.rote?.tags ?? ["inbox", "traveler"];
-  const roteEnabled = cfg.output?.rote?.enabled ?? true;
+  const tags = ["inbox", "traveler"];
 
   return [
     "You are OpenClaw. Please score the following feed items for relevance.",
@@ -66,7 +59,6 @@ function formatTask(
     `Persona: ${persona}`,
     `Minimum score: ${minScore}`,
     `Dedupe window (days): ${dedupeDays}`,
-    `Rote enabled: ${roteEnabled}`,
     `Rote tags: ${tags.join(", ")}`,
     "",
     "Rules:",
@@ -117,9 +109,6 @@ export async function forwardItemsToOpenClaw(args: {
   return { ok: true, sessionLabel: label };
 }
 
-export function scoreItem(
-  item: FeedItem,
-  cfg: TravelerConfig,
-): SelectedItem {
+export function scoreItem(item: FeedItem, cfg: TravelerConfig): SelectedItem {
   return scoreItemHeuristic(item, cfg);
 }

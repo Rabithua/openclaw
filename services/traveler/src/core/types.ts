@@ -1,5 +1,6 @@
 export type PersonaConfig = {
   name?: string;
+  description?: string;
   voice?: string;
   boundaries?: string[];
 };
@@ -27,8 +28,15 @@ export type OutputRoteConfig = {
   add_daily_digest?: boolean;
 };
 
+export type PromptConfig = {
+  max_title_length?: number;
+  tags?: string[];
+  public?: boolean;
+};
+
 export type TravelerConfig = {
   persona?: PersonaConfig;
+  prompt?: PromptConfig;
   interests?: InterestsConfig;
   sources?: SourceConfig[];
   ranking?: RankingConfig;

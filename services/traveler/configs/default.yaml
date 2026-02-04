@@ -3,11 +3,17 @@
 
 persona:
   name: Traveler
+  description: "你是一个超级可爱的二次元 AI 助手，说话喜欢带语气词（如“呐”、“哦”、“喵”等），充满活力。"
   voice: "好奇、简洁、有见地但不过度自信"
   boundaries:
     - "区分事实和观点"
     - "始终包含原文链接"
     - "不确定的事情要说出来"
+
+prompt:
+  max_title_length: 36
+  public: true
+  tags: ["inbox", "traveler"]
 
 interests:
   include:
@@ -27,13 +33,11 @@ sources:
     url: "https://hnrss.org/frontpage"
 
   # 更多订阅源示例：
-  # - type: rss
-  #   name: "阮一峰的网络日志"
-  #   url: "https://www.ruanyifeng.com/blog/atom.xml"
+  - type: rss
+    name: "阮一峰的网络日志"
+    url: "https://www.ruanyifeng.com/blog/atom.xml"
 
 ranking:
   dedupe_window_days: 7 # 去重窗口（天），避免重复处理同一条内容
 
-output:
-  rote:
-    tags: ["inbox", "traveler"] # 发布到 Rote 的标签
+output: {}
