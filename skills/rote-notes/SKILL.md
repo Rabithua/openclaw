@@ -1,72 +1,92 @@
 ---
 name: rote-notes
-description: Create, search, and list notes in a self-hosted (or hosted) Rote instance via its OpenKey (API Key) HTTP API. Use when the user wants you to save chat content as notes, default to a Rote “inbox”, tag notes, or retrieve notes by keyword/tag.
+description: Interact with the Rote platform via OpenKey (API Key). Capabilities include creating notes/articles, searching/retrieving notes, managing reactions, and updating user profiles.
 ---
 
-# Rote Notes
+# Rote Notes Skill
 
-Use this skill to treat **Rote** as the user’s default note backend: capture notes, structure them, and write them into Rote via **OpenKey (API Key)**.
+This skill allows you to interact with a Rote instance programmatically using an **OpenKey**.
 
-## Quick setup checklist (one-time)
+## Authentication
 
-1. Get the user’s **API base** (their self-hosted domain).
-  - Example: `https://notes.example.com/v2/api`
-2. Get an **API Key (OpenKey)** created in Rote with least privilege:
-  - `SENDROTE` (create notes)
-  - `GETROTE` (list/search notes)
-  - Optional: `SENDARTICLE`, `ADDREACTION`, `DELETEREACTION`, `EDITPROFILE` as needed
-3. **Never ask the user to paste keys into public chats.** If they already pasted a key, tell them to revoke/rotate it.
+All API requests **must** include the `openkey` parameter.
 
-## Core tasks
+- **GET Requests**: Use it as a query parameter: `?openkey=YOUR_API_KEY`
+- **POST/PUT/DELETE Requests**: Include `{"openkey": "YOUR_API_KEY"}` in the JSON body.
 
-### 1) Create a note (recommended)
+## Permissions
 
-- Prefer `POST /openkey/notes` (JSON body) instead of putting content/tags into URL.
-- Default behavior unless user requests otherwise:
-  - `state=private`
-  - `type=rote`
-  - tags include `inbox` (or a user-chosen default tag)
-  - title optional
+Ensure the OpenKey has the necessary permissions for the task:
 
-### 1b) Create an article (OpenKey)
+- `SENDROTE`: Create notes (POST /v2/api/openkey/notes)
+- `GETROTE`: Retrieve/Search notes (GET /v2/api/openkey/notes)
+- `EDITROTE`: Edit/Delete notes
+- `SENDARTICLE`: Create articles
+- `ADDREACTION`: Add reactions
+- `DELETEREACTION`: Delete reactions
+- `EDITPROFILE`: Get/Update user profile
 
-- Use `POST /openkey/articles` with JSON body `{ content }`.
-- Requires OpenKey permission: `SENDARTICLE`.
+## Endpoints
 
-If you need a deterministic call from the host machine, use:
-- `scripts/rote_openkey.ts` (Deno, recommended)
-- `scripts/rote_openkey.py` (Python, kept as a fallback)
+### 1. Create Note
 
-### 2) Search notes
+**POST** `/v2/api/openkey/notes`
 
-- Use `GET /openkey/notes/search?keyword=...`
-- Return a short list: title (or first line), createdAt, tags, id, and a 1–2 line snippet.
+- **Headers**: `Content-Type: application/json`
+- **Body**:
+  ```json
+  {
+    "openkey": "...",
+    "content": "Note content (required)",
+    "title": "Optional title",
+    "state": "private|public",
+    "type": "rote|article|other",
+    "tags": ["tag1", "tag2"],
+    "pin": false,
+    "articleId": "optional-article-uuid"
+  }
+  ```
 
-### 3) List recent notes
+### 2. Create Article
 
-- Use `GET /openkey/notes?skip=0&limit=...`
-- Allow filtering by tags.
+**POST** `/v2/api/openkey/articles`
 
-## Security rules
+- **Body**: `{"openkey": "...", "content": "..."}`
 
-- Treat API Keys as passwords.
-- Do not store API Keys in notes, repositories, or logs.
-- Prefer **least-privilege** OpenKeys.
-## Authentication rules
+### 3. Retrieve/List Notes
 
-- All OpenKey requests must include `openkey`.
-  - **GET**: use query param `?openkey=...`
-  - **POST/PUT/DELETE**: include `{"openkey": "..."}` in JSON body
-- The helper script already applies this behavior.
+**GET** `/v2/api/openkey/notes`
 
-## Additional supported tasks (if requested)
+- **Params**:
+  - `openkey`: (Required)
+  - `skip`, `limit`: Pagination
+  - `archived`: `true`|`false`
+  - `tag`: Filter by tag (supports `tag` or `tag[]`). Multiple tags use AND logic.
 
-- Add reaction: `POST /openkey/reactions` (`ADDREACTION`)
-- Remove reaction: `DELETE /openkey/reactions/:roteid/:type` (`DELETEREACTION`)
-- Get profile: `GET /openkey/profile` (`EDITPROFILE`)
-- Update profile: `PUT /openkey/profile` (`EDITPROFILE`)
-- Check permissions: `GET /openkey/permissions`
+### 4. Search Notes
 
-## Reference
+**GET** `/v2/api/openkey/notes/search`
 
-- Load `references/rote-openkey-api.md` for endpoint details and payload shapes.
+- **Params**: `openkey`, `keyword` (required), `skip`, `limit`, `archived`, `tag`.
+
+### 5. Reactions
+
+- **Add**: **POST** `/v2/api/openkey/reactions`
+  - **Body**: `{"openkey": "...", "type": "like", "roteid": "note_uuid", "metadata": {}}`
+- **Remove**: **DELETE** `/v2/api/openkey/reactions/:roteid/:type?openkey=...`
+
+### 6. User Profile
+
+- **Get**: **GET** `/v2/api/openkey/profile?openkey=...`
+- **Update**: **PUT** `/v2/api/openkey/profile`
+  - **Body**: `{"openkey": "...", "nickname": "...", "description": "...", "avatar": "...", "username": "..."}`
+
+### 7. Check Permissions
+
+**GET** `/v2/api/openkey/permissions?openkey=...`
+
+## Helper Scripts
+
+For deterministic calls from the host machine, you may use the provided script if applicable, but prefer direct API calls based on the documentation above for full feature support.
+
+- `scripts/rote_openkey.ts`
