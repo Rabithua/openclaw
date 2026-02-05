@@ -38,7 +38,7 @@ cp .env.example .env
 ```
 
 如果使用 Docker，请在项目根目录的 `.env` 中配置相同变量（docker-compose 会读取根目录
-`.env`）。
+`.env` 并注入容器环境变量）。
 
 ### 3. 添加订阅源
 
@@ -70,25 +70,10 @@ docker-compose logs -f
 docker-compose exec traveler deno task run
 ```
 
-Docker 下启用内置定时任务：
-
-1. 在项目根目录 `.env` 中设置：
-
-```
-TRAVELER_SCHEDULE_INTERVAL_MINUTES=60
-TRAVELER_SCHEDULE_RUN_ON_START=true
-```
-
-2. 重启容器：
-
-```bash
-docker-compose up -d --force-recreate
-```
-
 说明：
 
-- `docker-compose` 会读取项目根目录 `.env` 进行变量替换并注入容器环境变量
 - 容器内不会再读取单独的 `.env` 文件
+- 通过根目录 `.env` 配置环境变量后，执行 `docker-compose up -d --force-recreate` 生效
 
 **方式 2：直接运行**
 
