@@ -37,6 +37,9 @@ cp .env.example .env
 # - ROTE_OPENKEY（你的 Rote OpenKey）
 ```
 
+如果使用 Docker，请在项目根目录的 `.env` 中配置相同变量（docker-compose 会读取根目录
+`.env`）。
+
 ### 3. 添加订阅源
 
 编辑 `configs/default.yaml`：
@@ -67,6 +70,26 @@ docker-compose logs -f
 docker-compose exec traveler deno task run
 ```
 
+Docker 下启用内置定时任务：
+
+1. 在项目根目录 `.env` 中设置：
+
+```
+TRAVELER_SCHEDULE_INTERVAL_MINUTES=60
+TRAVELER_SCHEDULE_RUN_ON_START=true
+```
+
+2. 重启容器：
+
+```bash
+docker-compose up -d --force-recreate
+```
+
+说明：
+
+- `docker-compose` 会读取项目根目录 `.env` 进行变量替换并注入容器环境变量
+- 容器内不会再读取单独的 `.env` 文件
+
 **方式 2：直接运行**
 
 ```bash
@@ -77,7 +100,24 @@ deno task run
 deno task server
 ```
 
+本地直接运行时需要当前 shell 已有对应环境变量（可用 `set -a; source .env; set +a` 加载）。
+
 详细的 Docker 使用说明请查看 [DOCKER.md](DOCKER.md)
+
+### 内置定时任务（server 模式）
+
+如果希望 Traveler 自己定时抓取并通知 OpenClaw，可在 `deno task server` 模式下开启内置调度：
+
+```
+TRAVELER_SCHEDULE_INTERVAL_MINUTES=60
+TRAVELER_SCHEDULE_RUN_ON_START=true
+```
+
+说明：
+
+- 仅在 `server` 模式下生效
+- `TRAVELER_SCHEDULE_INTERVAL_MINUTES > 0` 即开启
+- 为避免重叠执行，若上一次尚未完成会自动跳过本次触发
 
 ## 工作流程
 

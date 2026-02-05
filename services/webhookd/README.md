@@ -52,8 +52,10 @@ cp .env.example .env
 
 ```bash
 deno task start
-# or: deno run -A --env-file=.env mod.ts
 ```
+
+Local runs read environment variables from the current shell (use `set -a; source .env; set +a` if
+you want to load from a file).
 
 Health check:
 

@@ -1,5 +1,6 @@
 import { handleGithubWebhook } from './src/handlers/github.ts';
 import { errorJson, json } from './src/utils/http.ts';
+import { logError, logInfo, logWarn } from './src/utils/logger.ts';
 
 /**
  * Generic webhook receiver.
@@ -17,37 +18,100 @@ import { errorJson, json } from './src/utils/http.ts';
  *  - GITHUB_WEBHOOK_SECRET (required)
  */
 
-const PORT = Number(Deno.env.get('PORT') ?? '8787');
+const PORT = Number(Deno.env.get('WEBHOOKD_PORT') ?? Deno.env.get('PORT') ?? '8787');
 const WEBHOOK_PATH = Deno.env.get('WEBHOOK_PATH') ?? '/webhook';
 
 Deno.serve({ port: PORT }, async (req) => {
+  const requestId = crypto.randomUUID();
+  const start = Date.now();
   const url = new URL(req.url);
+  logInfo('request_start', {
+    requestId,
+    method: req.method,
+    path: url.pathname,
+  });
 
   try {
     if (req.method === 'GET' && url.pathname === '/healthz') {
-      return json({ ok: true, service: 'webhookd' });
+      const response = json({ ok: true, service: 'webhookd' });
+      logInfo('request_end', {
+        requestId,
+        method: req.method,
+        path: url.pathname,
+        status: response.status,
+        duration_ms: Date.now() - start,
+      });
+      return response;
     }
 
     if (req.method !== 'POST') {
-      return json({ ok: false, error: 'method_not_allowed' }, 405);
+      const response = json({ ok: false, error: 'method_not_allowed' }, 405);
+      logWarn('request_method_not_allowed', {
+        requestId,
+        method: req.method,
+        path: url.pathname,
+      });
+      logInfo('request_end', {
+        requestId,
+        method: req.method,
+        path: url.pathname,
+        status: response.status,
+        duration_ms: Date.now() - start,
+      });
+      return response;
     }
 
     if (url.pathname !== WEBHOOK_PATH) {
-      return json({ ok: false, error: 'not_found' }, 404);
+      const response = json({ ok: false, error: 'not_found' }, 404);
+      logInfo('request_end', {
+        requestId,
+        method: req.method,
+        path: url.pathname,
+        status: response.status,
+        duration_ms: Date.now() - start,
+      });
+      return response;
     }
 
     // GitHub webhook requests include X-GitHub-Event
     const ghEvent = req.headers.get('x-github-event');
     if (ghEvent) {
-      return await handleGithubWebhook(req);
+      const response = await handleGithubWebhook(req, requestId);
+      logInfo('request_end', {
+        requestId,
+        method: req.method,
+        path: url.pathname,
+        status: response.status,
+        duration_ms: Date.now() - start,
+      });
+      return response;
     }
 
-    return json({ ok: false, error: 'unknown_webhook_source' }, 400);
+    const response = json({ ok: false, error: 'unknown_webhook_source' }, 400);
+    logWarn('unknown_webhook_source', { requestId });
+    logInfo('request_end', {
+      requestId,
+      method: req.method,
+      path: url.pathname,
+      status: response.status,
+      duration_ms: Date.now() - start,
+    });
+    return response;
   } catch (err) {
-    const requestId = crypto.randomUUID();
-    console.error('webhookd_unhandled_error', { requestId, err });
-    return errorJson(err, 500, { requestId });
+    logError('webhookd_unhandled_error', { requestId, error: String(err) });
+    const response = errorJson(err, 500, { requestId });
+    logInfo('request_end', {
+      requestId,
+      method: req.method,
+      path: url.pathname,
+      status: response.status,
+      duration_ms: Date.now() - start,
+    });
+    return response;
   }
 });
 
-console.log(`webhookd listening on http://127.0.0.1:${PORT}${WEBHOOK_PATH}`);
+logInfo('server_listening', {
+  url: `http://127.0.0.1:${PORT}${WEBHOOK_PATH}`,
+  routes: [`POST ${WEBHOOK_PATH}`, 'GET /healthz'],
+});

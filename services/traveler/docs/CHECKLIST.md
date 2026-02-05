@@ -128,8 +128,9 @@ export TRAVELER_API_TOKEN="your-secret-token"
 
 ```bash
 deno task server
-# 或
-deno run -A --env-file=.env src/server.ts
+# 或（若从 .env 读取）
+set -a; source .env; set +a
+deno run -A src/server.ts
 ```
 
 ### 3️⃣ 提交数据

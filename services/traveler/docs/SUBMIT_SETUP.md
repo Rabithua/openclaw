@@ -32,7 +32,8 @@ OPENCLAW_GATEWAY_TOKEN=your-openclaw-gateway-token
 deno task server
 
 # 或直接运行
-deno run -A --env-file=.env src/server.ts
+set -a; source .env; set +a
+deno run -A src/server.ts
 ```
 
 服务会输出：

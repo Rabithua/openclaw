@@ -69,9 +69,8 @@ GITHUB_REPLY_SIGNATURE="— replied by OpenClaw assistant"
 From `services/webhookd/`:
 
 ```bash
-deno run -A --env-file=.env mod.ts
-# or
-# deno task start   (must be defined to include --env-file)
+set -a; source .env; set +a
+deno task start
 ```
 
 Health check:
@@ -89,10 +88,11 @@ approach is to use the official Deno image and mount the code:
 docker run -d --name webhookd \
   --restart unless-stopped \
   -p 127.0.0.1:8787:8787 \
+  --env-file .env \
   -v "$(pwd)":/app \
   -w /app \
   denoland/deno:2.6.7 \
-  deno run -A --env-file=.env mod.ts
+  deno run -A mod.ts
 ```
 
 (Adjust the Deno version as you like.)
@@ -114,7 +114,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=/path/to/openclaw/services/webhookd
-ExecStart=/usr/bin/deno run -A --env-file=.env mod.ts
+EnvironmentFile=/path/to/openclaw/.env
+ExecStart=/usr/bin/deno run -A mod.ts
 Restart=always
 RestartSec=2
 
@@ -205,8 +206,9 @@ After saving, use **“Test delivery”** to validate.
 
 ### Environment variables not applied
 
-- Ensure you are starting with `--env-file=.env`.
-- If using `deno task start`, confirm the task includes `--env-file=.env`.
+- For local runs, load env into the current shell (`set -a; source .env; set +a`).
+- For Docker, use `--env-file .env` or `docker-compose` with a root `.env`.
+- For systemd, confirm `EnvironmentFile` points to the correct `.env`.
 
 ---
 

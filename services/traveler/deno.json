@@ -5,11 +5,11 @@
   "tasks": {
     "fmt": "deno fmt",
     "check": "deno check mod.ts",
-    "run": "deno run -A --env-file=.env mod.ts",
-    "run:unsafe": "deno run -A --unsafely-ignore-certificate-errors --env-file=.env mod.ts",
-    "run:once": "deno run -A --env-file=.env mod.ts run --config configs/default.yaml",
-    "run:daily": "deno run -A --env-file=.env mod.ts run --config configs/default.yaml",
-    "server": "deno run -A --env-file=.env src/server.ts",
-    "server:unsafe": "deno run -A --unsafely-ignore-certificate-errors --env-file=.env src/server.ts"
+    "run": "deno run -A mod.ts",
+    "run:unsafe": "deno run -A --unsafely-ignore-certificate-errors mod.ts",
+    "run:once": "deno run -A mod.ts run --config configs/default.yaml",
+    "run:daily": "deno run -A mod.ts run --config configs/default.yaml",
+    "server": "deno run -A src/server.ts",
+    "server:unsafe": "deno run -A --unsafely-ignore-certificate-errors src/server.ts"
   }
 }

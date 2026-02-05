@@ -2,6 +2,7 @@ import type { FeedItem, TravelerConfig } from "../core/types.ts";
 import { isSeen, markSeen } from "../core/dedupe.ts";
 import { generateCuratorPrompt } from "../core/prompt.ts";
 import { openclawToolsInvoke } from "../utils/openclaw.ts";
+import { logError } from "../utils/logger.ts";
 
 export type SubmitRequest = {
   source_name: string;
@@ -122,7 +123,7 @@ export async function handleSubmit(
       message: `Sent ${newItems.length} items to OpenClaw for review`,
     };
   } catch (error) {
-    console.error("Failed to send to OpenClaw:", error);
+    logError("submit_forward_failed", { error: String(error) });
     return {
       ok: false,
       error: "failed_to_forward_to_openclaw",

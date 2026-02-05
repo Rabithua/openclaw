@@ -5,7 +5,7 @@ services:
     container_name: openclaw-traveler
     restart: unless-stopped
     ports:
-      - "8788:8788"
+      - "${TRAVELER_PORT:-8788}:${TRAVELER_PORT:-8788}"
     environment:
       # 从环境变量或 .env 文件读取
       OPENCLAW_GATEWAY_URL: ${OPENCLAW_GATEWAY_URL:-}
@@ -15,6 +15,9 @@ services:
       TRAVELER_PORT: ${TRAVELER_PORT:-8788}
       TRAVELER_API_TOKEN: ${TRAVELER_API_TOKEN:-}
       TRAVELER_HMAC_SECRET: ${TRAVELER_HMAC_SECRET:-}
+      TRAVELER_SCHEDULE_INTERVAL_MINUTES: ${TRAVELER_SCHEDULE_INTERVAL_MINUTES:-0}
+      TRAVELER_SCHEDULE_RUN_ON_START: ${TRAVELER_SCHEDULE_RUN_ON_START:-true}
+      TRAVELER_LOG_LEVEL: ${TRAVELER_LOG_LEVEL:-info}
     volumes:
       - traveler-data:/app/.local
     networks:
@@ -26,7 +29,7 @@ services:
     container_name: openclaw-webhookd
     restart: unless-stopped
     ports:
-      - "8787:8787"
+      - "${WEBHOOKD_PORT:-8787}:${WEBHOOKD_PORT:-8787}"
     environment:
       # 从环境变量或 .env 文件读取
       WEBHOOKD_PORT: ${WEBHOOKD_PORT:-8787}
@@ -36,6 +39,7 @@ services:
       IGNORE_GITHUB_ACTORS: ${IGNORE_GITHUB_ACTORS:-}
       GITHUB_REPLY_SIGNATURE: ${GITHUB_REPLY_SIGNATURE:-— replied by OpenClaw assistant}
       DEDUPE_TTL_MS: ${DEDUPE_TTL_MS:-3600000}
+      WEBHOOKD_LOG_LEVEL: ${WEBHOOKD_LOG_LEVEL:-info}
     volumes:
       - webhookd-data:/app/.local
     networks:

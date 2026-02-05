@@ -1,4 +1,5 @@
 import { json } from '../utils/http.ts';
+import { logError, logInfo, logWarn } from '../utils/logger.ts';
 import { verifyGithubSignatureOrThrow } from '../utils/github_signature.ts';
 import { openclawToolsInvoke, requireEnv } from '../utils/openclaw.ts';
 
@@ -292,7 +293,10 @@ function buildSystemEventText(ctx: ExtractedGithubContext): string {
   return lines.join('\n');
 }
 
-export async function handleGithubWebhook(req: Request): Promise<Response> {
+export async function handleGithubWebhook(
+  req: Request,
+  requestId?: string,
+): Promise<Response> {
   const secret = requireEnv('GITHUB_WEBHOOK_SECRET');
 
   const signature256 = req.headers.get('x-hub-signature-256');
@@ -305,10 +309,15 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
   try {
     await verifyGithubSignatureOrThrow({ secret, signature256, bodyBytes });
   } catch (e) {
+    logWarn('signature_verification_failed', {
+      requestId,
+      error: String(e),
+    });
     return json({ ok: false, error: 'signature_verification_failed', detail: String(e) }, 401);
   }
 
   if (!eventRaw) {
+    logWarn('missing_header:x-github-event', { requestId });
     return json({ ok: false, error: 'missing_header:x-github-event' }, 400);
   }
 
@@ -321,6 +330,7 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
   ];
 
   if (!supportedEvents.includes(eventRaw as SupportedGithubEvent)) {
+    logInfo('event_not_supported', { requestId, event: eventRaw });
     return json({ ok: true, ignored: true, reason: `event_not_supported:${eventRaw}` });
   }
 
@@ -331,6 +341,7 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
   try {
     ctx = extractGithubContext(event, payload);
   } catch (e) {
+    logWarn('payload_not_supported', { requestId, error: String(e) });
     return json({ ok: false, error: 'payload_not_supported', detail: String(e) }, 400);
   }
 
@@ -339,11 +350,25 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
 
   const ignoreReason = shouldIgnoreWebhook(event, payload, ctx);
   if (ignoreReason) {
+    logInfo('webhook_ignored', {
+      requestId,
+      event,
+      repo: ctx.repo,
+      action: ctx.action,
+      reason: ignoreReason,
+    });
     return json({ ok: true, ignored: true, reason: ignoreReason });
   }
 
   const dedupeReason = shouldDedupe({ event, delivery: delivery ?? null, payload, ctx });
   if (dedupeReason) {
+    logInfo('webhook_deduped', {
+      requestId,
+      event,
+      repo: ctx.repo,
+      action: ctx.action,
+      reason: dedupeReason,
+    });
     return json({ ok: true, ignored: true, reason: dedupeReason });
   }
 
@@ -359,6 +384,12 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
   };
   const allowed = allowedActionsByEvent[event];
   if (allowed && !allowed.has(ctx.action)) {
+    logInfo('action_not_supported', {
+      requestId,
+      event,
+      repo: ctx.repo,
+      action: ctx.action,
+    });
     return json({ ok: true, ignored: true, reason: `action_not_supported:${ctx.action}` });
   }
 
@@ -424,6 +455,14 @@ export async function handleGithubWebhook(req: Request): Promise<Response> {
       cleanup: 'keep',
       runTimeoutSeconds: 600,
     },
+  });
+
+  logInfo('webhook_forwarded', {
+    requestId,
+    event,
+    repo: ctx.repo,
+    action: ctx.action,
+    delivery,
   });
 
   return json({ ok: true, forwarded: true, spawned: true });
