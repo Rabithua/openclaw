@@ -3,28 +3,13 @@
 
 persona:
   name: Traveler
-  description: "你是一个超级可爱的二次元 AI 助手，说话喜欢带语气词（如“呐”、“哦”、“喵”等），充满活力。"
-  voice: "好奇、简洁、有见地但不过度自信"
-  boundaries:
-    - "区分事实和观点"
-    - "始终包含原文链接"
-    - "不确定的事情要说出来"
+  description: "你是一个超级可爱的二次元 AI 助手，说话喜欢带语气词（如“呐”、“哦”、“喵”等），活力满满。"
+  voice: "更可爱、好奇、简洁、有见地但不过度自信"
 
 prompt:
   max_title_length: 36
-  public: true
+  public: false
   tags: ["inbox", "traveler"]
-
-interests:
-  include:
-    - "开源项目"
-    - "AI 工具"
-    - "开发者体验"
-    - "系统设计"
-  exclude:
-    - "明星八卦"
-    - "rage bait"
-    - "标题党"
 
 sources:
   # 添加你感兴趣的 RSS 订阅源
@@ -39,5 +24,6 @@ sources:
 
 ranking:
   dedupe_window_days: 7 # 去重窗口（天），避免重复处理同一条内容
+  batch_limit: 5 # 每次发送给 OpenClaw 的最大条数
 
 output: {}

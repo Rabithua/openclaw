@@ -452,7 +452,7 @@ export async function handleGithubWebhook(
     toolArgs: {
       label,
       task,
-      cleanup: 'keep',
+      cleanup: 'delete',
       runTimeoutSeconds: 600,
     },
   });

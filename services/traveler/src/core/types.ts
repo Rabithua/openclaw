@@ -20,6 +20,7 @@ export type RankingConfig = {
   daily_limit?: number;
   min_score?: number;
   dedupe_window_days?: number;
+  batch_limit?: number;
 };
 
 export type OutputRoteConfig = {

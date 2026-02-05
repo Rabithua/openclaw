@@ -41,10 +41,12 @@ export async function handleSubmit(
     };
   }
 
-  if (req.feed_items.length > 100) {
+  const batchLimit = cfg.ranking?.batch_limit ?? 5;
+
+  if (req.feed_items.length > batchLimit) {
     return {
       ok: false,
-      error: "invalid_request: maximum 100 items per request",
+      error: `invalid_request: maximum ${batchLimit} items per request`,
     };
   }
 
@@ -103,11 +105,11 @@ export async function handleSubmit(
     await openclawToolsInvoke({
       gatewayUrl,
       gatewayToken,
-      tool: "sessions",
-      action: "spawn",
+      tool: "sessions_spawn",
       toolArgs: {
         label: sessionLabel,
         task: prompt,
+        cleanup: "delete",
       },
     });
 

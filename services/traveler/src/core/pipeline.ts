@@ -38,6 +38,8 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   // 3. 去重（避免重复发送）
   const dedupeDays = cfg.ranking?.dedupe_window_days ?? 7;
   const newItems = allItems.filter((i) => !isSeen(i.url, dedupeDays));
+  const batchLimit = cfg.ranking?.batch_limit ?? 5;
+  const sendItems = newItems.slice(0, batchLimit);
 
   if (!newItems.length) {
     console.log(`📋 ${allItems.length} 条内容都已处理过（${dedupeDays} 天内）`);
@@ -48,7 +50,7 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
 
   // 4. 构建任务提示词
 
-  const prompt = generateCuratorPrompt(cfg, newItems);
+  const prompt = generateCuratorPrompt(cfg, sendItems);
 
   // 5. 发送给 OpenClaw
   const sessionLabel = `traveler-${new Date().toISOString().split("T")[0]}`;
@@ -61,15 +63,16 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
       toolArgs: {
         label: sessionLabel,
         task: prompt,
+        cleanup: "delete",
       },
     });
 
     // 6. 标记所有内容为已处理
-    for (const item of newItems) {
+    for (const item of sendItems) {
       markSeen(item.url);
     }
 
-    console.log(`✅ 已将 ${newItems.length} 条内容发送给 OpenClaw`);
+    console.log(`✅ 已将 ${sendItems.length} 条内容发送给 OpenClaw`);
     console.log(`   会话标签：${sessionLabel}`);
   } catch (error) {
     console.error("❌ 发送到 OpenClaw 失败:", error);
