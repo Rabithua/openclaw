@@ -11,6 +11,8 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   // 1. 检查 OpenClaw 配置
   const gatewayUrl = (Deno.env.get("OPENCLAW_GATEWAY_URL") ?? "").trim();
   const gatewayToken = (Deno.env.get("OPENCLAW_GATEWAY_TOKEN") ?? "").trim();
+  const roteApiBase = (Deno.env.get("ROTE_API_BASE") ?? "").trim();
+  const roteOpenKey = (Deno.env.get("ROTE_OPENKEY") ?? "").trim();
 
   if (!gatewayUrl || !gatewayToken) {
     console.error("❌ 缺少 OPENCLAW_GATEWAY_URL 或 OPENCLAW_GATEWAY_TOKEN");
@@ -64,6 +66,10 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
         label: sessionLabel,
         task: prompt,
         cleanup: "delete",
+        env: {
+          ROTE_API_BASE: roteApiBase,
+          ROTE_OPENKEY: roteOpenKey,
+        },
       },
     });
 
