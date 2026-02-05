@@ -26,7 +26,7 @@ export async function handleSubmit(
   req: SubmitRequest,
   cfg: TravelerConfig,
 ): Promise<SubmitResponse> {
-  // 1. 验证请求
+  // 1. Validate request
   if (!req.source_name || !req.feed_items || !Array.isArray(req.feed_items)) {
     return {
       ok: false,
@@ -50,7 +50,7 @@ export async function handleSubmit(
     };
   }
 
-  // 2. 检查 OpenClaw 配置
+  // 2. Check OpenClaw configuration
   const gatewayUrl = (Deno.env.get("OPENCLAW_GATEWAY_URL") ?? "").trim();
   const gatewayToken = (Deno.env.get("OPENCLAW_GATEWAY_TOKEN") ?? "").trim();
 
@@ -61,7 +61,7 @@ export async function handleSubmit(
     };
   }
 
-  // 3. 转换并去重
+  // 3. Transform and deduplicate
   const dedupeWindowDays = cfg.ranking?.dedupe_window_days ?? 7;
 
   const items: FeedItem[] = req.feed_items
@@ -94,11 +94,11 @@ export async function handleSubmit(
     };
   }
 
-  // 4. 构建任务提示词
+  // 4. Build task prompt
 
   const prompt = generateCuratorPrompt(cfg, newItems, req.source_name);
 
-  // 5. 发送给 OpenClaw
+  // 5. Send to OpenClaw
   const sessionLabel = `traveler-submit-${req.source_name}-${Date.now()}`;
 
   try {
@@ -113,7 +113,7 @@ export async function handleSubmit(
       },
     });
 
-    // 6. 标记为已处理
+    // 6. Mark as processed
     for (const item of newItems) {
       markSeen(item.url);
     }

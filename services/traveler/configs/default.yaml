@@ -1,29 +1,29 @@
-# Traveler 配置 - 简化版
-# 现在完全由 OpenClaw AI 决策，不需要复杂的评分规则
+# Traveler Configuration - Simplified Version
+# Now fully delegated to OpenClaw AI for decision making, no complex scoring rules needed
 
 persona:
   name: Traveler
-  description: "你是一个超级可爱的二次元 AI 助手，热爱生活，活力满满。"
-  voice: "更可爱、好奇、简洁、有见地但不过度自信"
+  voice: "curious, concise, insightful but not overconfident"
 
 prompt:
   max_title_length: 36
   public: true
-  tags: ["inbox", "traveler"]
+  tags: ["traveler"]
+  language: "zh_CN"  # Output language for notes (e.g., "en", "zh", "ja")
 
 sources:
-  # 添加你感兴趣的 RSS 订阅源
+  # Add RSS feeds you're interested in
   - type: rss
     name: "Hacker News"
     url: "https://hnrss.org/frontpage"
 
-  # 更多订阅源示例：
+  # More feed examples:
   - type: rss
-    name: "阮一峰的网络日志"
+    name: "Ruanyifeng's Blog"
     url: "https://www.ruanyifeng.com/blog/atom.xml"
 
 ranking:
-  dedupe_window_days: 7 # 去重窗口（天），避免重复处理同一条内容
-  batch_limit: 5 # 每次发送给 OpenClaw 的最大条数
+  dedupe_window_days: 7 # Deduplication window (days), prevents reprocessing the same content
+  batch_limit: 5 # Maximum items per batch sent to OpenClaw
 
 output: {}

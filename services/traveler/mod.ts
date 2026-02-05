@@ -1,5 +1,5 @@
-import { parseArgs } from "jsr:@std/cli/parse-args";
-import { parse as parseYaml } from "jsr:@std/yaml";
+import { parseArgs } from "@std/cli/parse-args";
+import { parse as parseYaml } from "@std/yaml";
 import { runOnce } from "./src/core/pipeline.ts";
 import type { TravelerConfig } from "./src/core/types.ts";
 

@@ -5,22 +5,22 @@ import type { FeedItem, TravelerConfig } from "./types.ts";
 import { generateCuratorPrompt } from "./prompt.ts";
 
 /**
- * 简化版流程：直接把 RSS 内容发给 OpenClaw，让 AI 自己决定
+ * Simplified pipeline: Send RSS content directly to OpenClaw and let AI decide
  */
 export async function runOnce(cfg: TravelerConfig): Promise<void> {
-  // 1. 检查 OpenClaw 配置
+  // 1. Check OpenClaw configuration
   const gatewayUrl = (Deno.env.get("OPENCLAW_GATEWAY_URL") ?? "").trim();
   const gatewayToken = (Deno.env.get("OPENCLAW_GATEWAY_TOKEN") ?? "").trim();
   const roteApiBase = (Deno.env.get("ROTE_API_BASE") ?? "").trim();
   const roteOpenKey = (Deno.env.get("ROTE_OPENKEY") ?? "").trim();
 
   if (!gatewayUrl || !gatewayToken) {
-    console.error("❌ 缺少 OPENCLAW_GATEWAY_URL 或 OPENCLAW_GATEWAY_TOKEN");
-    console.error("   现在 Traveler 完全依赖 OpenClaw，请配置这两个环境变量");
+    console.error("❌ Missing OPENCLAW_GATEWAY_URL or OPENCLAW_GATEWAY_TOKEN");
+    console.error("   Traveler now fully relies on OpenClaw, please configure these environment variables");
     return;
   }
 
-  // 2. 抓取所有订阅源
+  // 2. Fetch all subscription sources
   const sources = cfg.sources ?? [];
   const allItems: FeedItem[] = [];
 
@@ -28,33 +28,33 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
     if (src.type === "rss") {
       const items = await fetchRss(src.url, src.name ?? "rss");
       allItems.push(...items);
-      console.log(`📡 从 ${src.name} 获取了 ${items.length} 条`);
+      console.log(`📡 Fetched ${items.length} items from ${src.name}`);
     }
   }
 
   if (!allItems.length) {
-    console.log("📭 没有新内容");
+    console.log("📭 No new content");
     return;
   }
 
-  // 3. 去重（避免重复发送）
+  // 3. Deduplicate (avoid duplicate submissions)
   const dedupeDays = cfg.ranking?.dedupe_window_days ?? 7;
   const newItems = allItems.filter((i) => !isSeen(i.url, dedupeDays));
   const batchLimit = cfg.ranking?.batch_limit ?? 5;
   const sendItems = newItems.slice(0, batchLimit);
 
   if (!newItems.length) {
-    console.log(`📋 ${allItems.length} 条内容都已处理过（${dedupeDays} 天内）`);
+    console.log(`📋 All ${allItems.length} items have been processed (within ${dedupeDays} days)`);
     return;
   }
 
-  console.log(`✨ 发现 ${newItems.length} 条新内容，交给 OpenClaw 处理...`);
+  console.log(`✨ Found ${newItems.length} new items, forwarding to OpenClaw...`);
 
-  // 4. 构建任务提示词
+  // 4. Build task prompt
 
   const prompt = generateCuratorPrompt(cfg, sendItems);
 
-  // 5. 发送给 OpenClaw
+  // 5. Send to OpenClaw
   const sessionLabel = `traveler-${new Date().toISOString().split("T")[0]}`;
 
   try {
@@ -69,15 +69,15 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
       },
     });
 
-    // 6. 标记所有内容为已处理
+    // 6. Mark all items as processed
     for (const item of sendItems) {
       markSeen(item.url);
     }
 
-    console.log(`✅ 已将 ${sendItems.length} 条内容发送给 OpenClaw`);
-    console.log(`   会话标签：${sessionLabel}`);
+    console.log(`✅ Sent ${sendItems.length} items to OpenClaw`);
+    console.log(`   Session label: ${sessionLabel}`);
   } catch (error) {
-    console.error("❌ 发送到 OpenClaw 失败:", error);
+    console.error("❌ Failed to send to OpenClaw:", error);
     throw error;
   }
 }

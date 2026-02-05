@@ -1,5 +1,5 @@
-import { ensureDirSync } from "jsr:@std/fs/ensure-dir";
-import { join } from "jsr:@std/path/join";
+import { ensureDirSync } from "@std/fs/ensure-dir";
+import { join } from "@std/path/join";
 
 const STATE_DIR = Deno.env.get("TRAVELER_STATE_DIR") ?? "state";
 const STATE_FILE = join(STATE_DIR, "seen.json");

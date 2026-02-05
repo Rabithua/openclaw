@@ -1,7 +1,7 @@
-import { parse as parseYaml } from "jsr:@std/yaml";
+import { parse as parseYaml } from "@std/yaml";
 import { runOnce } from "./core/pipeline.ts";
 import { handleSubmit, type SubmitRequest } from "./handlers/submit.ts";
-import { json, readJsonBody } from "./utils/http.ts";
+import { json } from "./utils/http.ts";
 import {
   getAuthToken,
   getSignature,

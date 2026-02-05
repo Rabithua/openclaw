@@ -1,5 +1,5 @@
-import { XMLParser } from "npm:fast-xml-parser@4.5.1";
-import { FeedItem } from "./types.ts";
+import { XMLParser } from "fast-xml-parser";
+import type { FeedItem } from "./types.ts";
 
 function clip(s: unknown, max = 20_000): string {
   const t = String(s ?? "").trim();

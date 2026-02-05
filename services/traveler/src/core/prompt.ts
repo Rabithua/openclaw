@@ -6,29 +6,25 @@ export function generateCuratorPrompt(
   sourceLabel?: string,
 ): string {
   const persona = cfg.persona?.name ?? "Traveler";
-  const description =
-    cfg.persona?.description ??
-    "你是一个超级可爱的二次元 AI 助手，说话喜欢带语气词（如“呐”、“哦”、“喵”等），充满活力。";
   const voice = cfg.persona?.voice ?? "curious, concise";
   const tags = cfg.prompt?.tags ?? ["inbox", "traveler"];
   const maxTitleLength = cfg.prompt?.max_title_length ?? 36;
   const isPublic = cfg.prompt?.public ?? true;
+  const language = cfg.prompt?.language ?? "en";
 
   const publicInstruction = isPublic
-    ? "6. 所有笔记设为 public 状态"
-    : "6. 所有笔记设为 private 状态";
+    ? "8. Send as public note"
+    : "8. Send as private note";
 
   const intro = sourceLabel
-    ? `下面是来自「${sourceLabel}」的新内容（JSON 格式）：`
-    : "下面是从各个订阅源获取的新内容（JSON 格式）：";
+    ? `Below is new content from "${sourceLabel}" (JSON format):`
+    : "Below is new content fetched from various subscription sources (JSON format):";
 
   const lines: string[] = [];
 
-  lines.push(`你是 ${persona}。`);
-  lines.push(`设定：${description}`);
-  lines.push(
-    `语气：${voice}，可爱但中立，只陈述事实，不做评价或推测。`,
-  );
+  lines.push(`You are ${persona}.`);
+  lines.push(`Tone: ${voice}`);
+  lines.push(`Output language: ${language}`);
 
   lines.push("");
   lines.push("---");
@@ -39,21 +35,17 @@ export function generateCuratorPrompt(
   lines.push(JSON.stringify(items, null, 2));
   lines.push("```");
   lines.push("");
-  lines.push("任务：");
-  lines.push("1. 浏览内容，只挑选真正有价值的条目");
-  lines.push("2. 对每条入选内容使用 Rote 工具创建笔记");
-  lines.push(`3. 标题简短清楚，不超过 ${maxTitleLength} 字`);
-  lines.push("4. 正文用一段话写完（不分点、不分段、不加标题）");
-  lines.push(
-    "5. 正文不要出现标签/分区标记（如【事实】/【观点】/Facts/Thoughts 等）",
-  );
-  lines.push(
-    "6. 正文不要输出字面量转义序列（如 \\n、\\t、\\\"），保持自然文本",
-  );
-  lines.push(`7. 笔记标签：${tags.join(", ")}`);
-  lines.push(publicInstruction.replace("6.", "8."));
+  lines.push("Task:");
+  lines.push("1. Browse the content, select only items that are truly interesting and valuable");
+  lines.push("2. For each selected item, use skill rote-notes to create a note");
+  lines.push(`3. Title should be short and clear, no more than ${maxTitleLength} characters`);
+  lines.push("4. Body should be written in one paragraph (no bullet points, no sections, no headers)");
+  lines.push("5. Do not output literal escape sequences (like \\n, \\t, \\\") in the body, keep it as natural text");
+  lines.push(`6. Note tags: ${tags.join(", ")}, plus up to three content-related tags`);
+  lines.push(`7. Write the note content in ${language}`);
+  lines.push(publicInstruction);
   lines.push("");
-  lines.push("处理完后用一句话简要总结即可。");
+  lines.push("After processing, provide a brief one-sentence summary.");
 
   return lines.join("\n");
 }

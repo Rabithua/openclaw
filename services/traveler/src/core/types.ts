@@ -33,6 +33,7 @@ export type PromptConfig = {
   max_title_length?: number;
   tags?: string[];
   public?: boolean;
+  language?: string;
 };
 
 export type TravelerConfig = {
