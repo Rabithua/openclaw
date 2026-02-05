@@ -8,25 +8,24 @@
  *
  * Env:
  *   ROTE_API_BASE  e.g. https://api.rote.ink/v2/api
- *   ROTE_API_KEY   your OpenKey
+ *   ROTE_OPENKEY   your OpenKey
  *
  * Examples:
- *   ROTE_API_KEY=... deno run -A rote_openkey.ts create --content "hello" --tag inbox --private
- *   ROTE_API_KEY=... deno run -A rote_openkey.ts list --limit 5
- *   ROTE_API_KEY=... deno run -A rote_openkey.ts search --keyword "hello"
+ *   ROTE_OPENKEY=... deno run -A rote_openkey.ts create --content "hello" --tag inbox --private
+ *   ROTE_OPENKEY=... deno run -A rote_openkey.ts list --limit 5
+ *   ROTE_OPENKEY=... deno run -A rote_openkey.ts search --keyword "hello"
  */
 
 type Json = Record<string, unknown>;
 
 function apiBase(): string {
-  const base = (Deno.env.get("ROTE_API_BASE") ?? "").trim() ||
-    "https://api.rote.ink/v2/api";
+  const base = (Deno.env.get("ROTE_API_BASE") ?? "").trim() || "https://api.rote.ink/v2/api";
   return base.replace(/\/+$/, "");
 }
 
 function apiKey(): string {
-  const key = (Deno.env.get("ROTE_API_KEY") ?? "").trim();
-  if (!key) throw new Error("Missing ROTE_API_KEY env var");
+  const key = (Deno.env.get("ROTE_OPENKEY") ?? "").trim();
+  if (!key) throw new Error("Missing ROTE_OPENKEY env var");
   return key;
 }
 
@@ -55,7 +54,7 @@ async function request(
   withOpenKeyQuery(url);
 
   const headers: Record<string, string> = {
-    "accept": "application/json",
+    accept: "application/json",
   };
 
   let body: string | undefined;
@@ -77,9 +76,7 @@ async function request(
 
   if (!resp.ok) {
     throw new Error(
-      `HTTP ${resp.status}: ${
-        typeof data === "string" ? data : JSON.stringify(data)
-      }`,
+      `HTTP ${resp.status}: ${typeof data === "string" ? data : JSON.stringify(data)}`,
     );
   }
 

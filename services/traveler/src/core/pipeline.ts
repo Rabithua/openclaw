@@ -68,7 +68,7 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
         cleanup: "delete",
         env: {
           ROTE_API_BASE: roteApiBase,
-          ROTE_API_KEY: roteOpenKey,
+          ROTE_OPENKEY: roteOpenKey,
         },
       },
     });
