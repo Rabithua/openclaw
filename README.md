@@ -2,45 +2,49 @@
 
 Personal **OpenClaw** repository containing the **skills** and **local services** that I maintain and deploy for my own workflow.
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 1. 配置环境变量
+# 1. Configure environment variables
 cp services/traveler/.env.example services/traveler/.env
 cp services/webhookd/.env.example services/webhookd/.env
 
-# 编辑配置文件
+# Edit configuration files
 vim services/traveler/.env
 vim services/webhookd/.env
 
-# 2. 启动所有服务
+# 2. Start all services
 docker-compose up -d
 
-# 3. 查看日志
+# 3. View logs
 docker-compose logs -f
 ```
 
-## 服务说明
+## Services
 
-### Traveler (端口 8788)
-RSS 订阅助手 - 抓取 RSS，交给 OpenClaw AI 筛选，发布到 Rote
-- 健康检查: `curl http://localhost:8788/healthz`
-- 手动抓取: `docker-compose exec traveler deno task run`
+### Traveler (Port 8788)
 
-### Webhookd (端口 8787)
-GitHub webhook 接收器 - 转发 GitHub 事件到 OpenClaw
-- 健康检查: `curl http://localhost:8787/healthz`
+RSS Subscription Assistant - Fetches RSS, filters via OpenClaw AI, and publishes to Rote.
 
-## 常用命令
+- Health Check: `curl http://localhost:8788/healthz`
+- Manual Fetch: `docker-compose exec traveler deno task run`
+
+### Webhookd (Port 8787)
+
+GitHub Webhook Receiver - Forwards GitHub events to OpenClaw.
+
+- Health Check: `curl http://localhost:8787/healthz`
+
+## Common Commands
 
 ```bash
-docker-compose up -d           # 启动
-docker-compose down            # 停止
-docker-compose logs -f         # 查看日志
-docker-compose restart traveler # 重启服务
+docker-compose up -d           # Start
+docker-compose down            # Stop
+docker-compose logs -f         # View logs
+docker-compose restart traveler # Restart service
 ```
 
-## Repository layout
+## Repository Layout
 
 - `services/`
   - `webhookd/` – GitHub webhook receiver
@@ -50,7 +54,7 @@ docker-compose restart traveler # 重启服务
 
 ## Conventions
 
-### Security note (important)
+### Security Note (Important)
 
 OpenClaw and webhook receivers like `webhookd` can reduce risk with signatures, allowlists, dedupe, and loop-prevention — but **nothing is perfectly secure**.
 
@@ -59,20 +63,19 @@ OpenClaw and webhook receivers like `webhookd` can reduce risk with signatures, 
 - Prefer running OpenClaw + local services **inside Docker** (or another sandbox) with minimal privileges.
 - Do not expose internal ports directly to the public Internet; use a tunnel/reverse proxy and keep auth enabled.
 
-
-### Skills implementation default
+### Skills Implementation Default
 
 - New skills (especially helper CLIs under `skills/<name>/scripts/`) should default to **TypeScript + Deno**.
 - Prefer single-file Deno scripts (`.ts`) with explicit permissions (e.g. `--allow-net --allow-env`).
 - Avoid Python for new skills unless there is a strong reason (keep the toolchain consistent).
 
-### Secrets & local-only files
+### Secrets & Local-only Files
 
 - **Never commit** `.env`, private keys, certificates, or machine-specific files.
 - Use `*.env.example` as templates.
 - Local machine files belong in `.local/` (ignored by git).
 
-### GitHub reply signature
+### GitHub Reply Signature
 
 Automated GitHub replies should end with a consistent signature.
 
@@ -81,13 +84,16 @@ Automated GitHub replies should end with a consistent signature.
 
 This signature is also used for **loop prevention** (the webhook service ignores comments containing the signature).
 
-## 详细配置
+## Detailed Configuration
 
 ### Traveler
-详见 [services/traveler/README.md](services/traveler/README.md)
 
-### Webhookd  
-详见 [services/webhookd/README.md](services/webhookd/README.md)
+See [services/traveler/README.md](services/traveler/README.md)
+
+### Webhookd
+
+See [services/webhookd/README.md](services/webhookd/README.md)
 
 ### Skills
+
 - `skills/rote-notes/` – Rote API skill

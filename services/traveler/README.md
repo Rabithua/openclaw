@@ -1,48 +1,48 @@
-# Traveler - AI 驱动的 RSS 订阅助手
+# Traveler - AI-Driven RSS Subscription Assistant
 
-简单、智能的 RSS 订阅管理工具，完全由 OpenClaw AI 决策。
+Simple, intelligent RSS subscription management, fully decided by OpenClaw AI.
 
-## 核心理念
+## Core Philosophy
 
-**让 AI 做决定，不写复杂规则**
+**Let AI decide, no complex rules.**
 
-传统的 RSS
-阅读器需要你设置复杂的过滤规则、评分算法、关键词匹配...这些都太麻烦了。
+Traditional RSS readers require you to set up complex filtering rules, scoring algorithms, keyword matching... all of which are too troublesome.
 
-Traveler 的做法很简单：
+Traveler's approach is simple:
 
-1. 抓取 RSS 订阅源
-2. 把所有内容发给 OpenClaw
-3. AI 自己看、自己选、自己发布到 Rote
+1.  Fabricates RSS feed content.
+2.  Sends all content to OpenClaw.
+3.  The agent filters, selects, and publishes to Rote directly using injected credentials.
 
-## 快速开始
+## Quick Start
 
-### 1. 前置要求
+### 1. Prerequisites
 
-- 已部署 OpenClaw（本地或远程）
-- 拥有 Rote 账号和 OpenKey
+- Deployed OpenClaw (local or remote)
+- Rote account and OpenKey
 
-### 2. 配置
+### 2. Configuration
 
 ```bash
 cd services/traveler
 
-# 复制环境变量模板
+# Copy environment template
 cp .env.example .env
 
-# 编辑 .env，必须配置：
-# - OPENCLAW_GATEWAY_URL（OpenClaw 的地址）
-# - OPENCLAW_GATEWAY_TOKEN（OpenClaw 的访问令牌）
-# - ROTE_API_BASE（Rote API 地址）
-# - ROTE_OPENKEY（你的 Rote OpenKey）
+# Edit .env, mandatory configuration:
+# - OPENCLAW_GATEWAY_URL (OpenClaw address)
+# - OPENCLAW_GATEWAY_TOKEN (OpenClaw access token)
+# - ROTE_API_BASE (Rote API address)
+# - ROTE_OPENKEY (Your Rote OpenKey)
 ```
 
-如果使用 Docker，请在项目根目录的 `.env` 中配置相同变量（docker-compose 会读取根目录
-`.env` 并注入容器环境变量）。
+**Note:** `ROTE_API_BASE` and `ROTE_OPENKEY` are read by Traveler and passed to the OpenClaw agent, enabling the agent to use Rote tools on your behalf.
 
-### 3. 添加订阅源
+If using Docker, configure the same variables in the project root `.env` (docker-compose reads the root `.env` and injects container environment variables).
 
-编辑 `configs/default.yaml`：
+### 3. Add Subscriptions
+
+Edit `configs/default.yaml`:
 
 ```yaml
 sources:
@@ -51,116 +51,116 @@ sources:
     url: "https://hnrss.org/frontpage"
 
   - type: rss
-    name: "阮一峰的网络日志"
+    name: "Ruanyifeng's Blog"
     url: "https://www.ruanyifeng.com/blog/atom.xml"
 ```
 
-### 4. 运行
+### 4. Run
 
-**方式 1：使用 Docker（推荐）**
+**Method 1: Using Docker (Recommended)**
 
 ```bash
-# 启动服务器模式
+# Start server mode
 docker-compose up -d
 
-# 查看日志
+# View logs
 docker-compose logs -f
 
-# 手动触发一次抓取
+# Manually trigger a fetch
 docker-compose exec traveler deno task run
 ```
 
-说明：
+Notes:
 
-- 容器内不会再读取单独的 `.env` 文件
-- 通过根目录 `.env` 配置环境变量后，执行 `docker-compose up -d --force-recreate` 生效
+- The container will not read a separate `.env` file inside.
+- After configuring environment variables via the root `.env`, execute `docker-compose up -d --force-recreate` to apply changes.
 
-**方式 2：直接运行**
+**Method 2: Direct Run**
 
 ```bash
-# 单次运行
+# Single run
 deno task run
 
-# 或启动 HTTP 服务器
+# Or start HTTP server
 deno task server
 ```
 
-本地直接运行时需要当前 shell 已有对应环境变量（可用 `set -a; source .env; set +a` 加载）。
+When running locally, ensure the current shell has the corresponding environment variables (use `set -a; source .env; set +a` to load).
 
-详细的 Docker 使用说明请查看 [DOCKER.md](DOCKER.md)
+For detailed Docker usage instructions, please check [DOCKER.md](DOCKER.md).
 
-### 内置定时任务（server 模式）
+### Built-in Scheduler (Server Mode)
 
-如果希望 Traveler 自己定时抓取并通知 OpenClaw，可在 `deno task server` 模式下开启内置调度：
+If you want Traveler to fetch and notify OpenClaw regularly, you can enable the built-in scheduler in `deno task server` mode:
 
 ```
 TRAVELER_SCHEDULE_INTERVAL_MINUTES=60
 TRAVELER_SCHEDULE_RUN_ON_START=true
 ```
 
-说明：
+Notes:
 
-- 仅在 `server` 模式下生效
-- `TRAVELER_SCHEDULE_INTERVAL_MINUTES > 0` 即开启
-- 为避免重叠执行，若上一次尚未完成会自动跳过本次触发
+- Only effective in `server` mode.
+- `TRAVELER_SCHEDULE_INTERVAL_MINUTES > 0` enables it.
+- To avoid overlapping executions, it will automatically skip the current trigger if the previous one hasn't finished.
 
-## 工作流程
+## Workflow
 
 ```
-RSS 订阅源
+RSS Feeds
     ↓
-抓取新内容
+Fetch New Content
     ↓
-去重（7 天内避免重复）
+Deduplication (Avoid duplicates within 7 days)
     ↓
-发送给 OpenClaw AI
+Send to OpenClaw AI (with Rote credentials)
     ↓
-AI 浏览、筛选
+AI Browses & Filters
     ↓
-AI 将感兴趣的内容写入 Rote 笔记
+AI Writes Interesting Content to Rote Notes
 ```
 
-## 配置说明
+## Configuration Guide
 
-### persona（个性设置）
+### persona
 
-定义 AI 助手的身份和行为准则：
+Define the AI assistant's identity and behavioral guidelines:
 
 ```yaml
 persona:
-  name: Traveler # AI 的名字
-  voice: "好奇、简洁、有见地" # 语气风格
-  boundaries: # 行为准则
-    - "区分事实和观点"
-    - "始终包含原文链接"
+  name: Traveler # AI Name
+  voice: "curious, concise, insightful" # Tone style
+  boundaries: # Behavioral guidelines
+    - "Distinguish between facts and opinions"
+    - "Always include the original link"
 ```
 
-### interests（兴趣偏好）
+### interests
 
-帮助 AI 了解你的兴趣方向：
+Help AI understand your interest direction:
 
 ```yaml
 interests:
-  include: # 感兴趣的主题
-    - "开源项目"
-    - "AI 工具"
-    - "系统设计"
-  exclude: # 不感兴趣的主题
-    - "明星八卦"
-    - "标题党"
+  include: # Topics of interest
+    - "Open Source Projects"
+    - "AI Tools"
+    - "System Design"
+  exclude: # Topics to ignore
+    - "Celebrity Gossip"
+    - "Clickbait"
 ```
 
-### output（输出设置）
+### output
 
 ```yaml
 output:
   rote:
-    tags: ["inbox", "traveler"] # 发布到 Rote 时的标签
+    tags: ["inbox", "traveler"] # Tags when publishing to Rote
 ```
 
-## HTTP API（可选）
+## HTTP API (Optional)
 
-如果启动了服务器模式（`deno task server`），可以通过 API 主动提交内容：
+If server mode is started (`deno task server`), you can actively submit content via API:
 
 ### POST /traveler/submit
 
@@ -169,53 +169,53 @@ curl -X POST http://127.0.0.1:8788/traveler/submit \
   -H "X-API-Token: your-api-token" \
   -H "Content-Type: application/json" \
   -d '{
-    "source_name": "我的收藏",
+    "source_name": "My Collection",
     "feed_items": [
       {
-        "title": "有趣的文章",
+        "title": "Interesting Article",
         "url": "https://example.com/article",
-        "summary": "这是一篇很棒的文章...",
+        "summary": "This is a great article...",
         "published_at": "2024-01-01T00:00:00Z"
       }
     ]
   }'
 ```
 
-详见 [SUBMIT_API.md](docs/SUBMIT_API.md)
+See [SUBMIT_API.md](docs/SUBMIT_API.md) for details.
 
-## 定时运行
+## Cron Execution
 
-使用 cron 定时执行：
+Execute using cron:
 
 ```bash
-# 每小时运行一次
+# Run every hour
 0 * * * * cd /path/to/openclaw/services/traveler && deno task run
 
-# 或使用 systemd timer、launchd 等
+# Or use systemd timer, launchd, etc.
 ```
 
-## 为什么不用传统的评分系统？
+## Why not traditional scoring systems?
 
-传统方法的问题：
+Problems with traditional methods:
 
-- 需要手写复杂的关键词匹配规则
-- 规则难以维护，容易过时
-- 无法理解上下文和语义
-- 误判率高
+- Need to write complex keyword matching rules.
+- Rules are hard to maintain and easily outdated.
+- Cannot understand context and semantics.
+- High false positive rate.
 
-AI 驱动的好处：
+Benefits of AI-driven:
 
-- AI 能理解文章的真实内容和价值
-- 自动适应新话题和新领域
-- 不需要维护规则，只需告诉它你的兴趣
-- 决策更智能、更灵活
+- AI can understand the real content and value of articles.
+- Automatically adapts to new topics and fields.
+- No need to maintain rules, just tell it your interests.
+- Smarter and more flexible decision making.
 
-## 技术栈
+## Tech Stack
 
-- **Deno** - TypeScript 运行时
-- **OpenClaw** - AI 决策引擎
-- **Rote** - 笔记系统
+- **Deno** - TypeScript Runtime
+- **OpenClaw** - AI Decision Engine
+- **Rote** - Note System
 
 ## License
 
-个人项目，如需重用请自行添加许可证。
+Personal project, please add license yourself if reusing.
