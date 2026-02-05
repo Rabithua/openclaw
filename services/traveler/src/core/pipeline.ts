@@ -64,12 +64,8 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
       tool: "sessions_spawn",
       toolArgs: {
         label: sessionLabel,
-        task: prompt,
+        task: `${prompt}\n\nROTE_API_BASE=${roteApiBase}\nROTE_OPENKEY=${roteOpenKey}`,
         cleanup: "delete",
-        env: {
-          ROTE_API_BASE: roteApiBase,
-          ROTE_OPENKEY: roteOpenKey,
-        },
       },
     });
 
