@@ -55,7 +55,7 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   const prompt = generateCuratorPrompt(cfg, sendItems);
 
   // 5. Send to OpenClaw
-  const sessionLabel = `traveler-${new Date().toISOString().split("T")[0]}`;
+  const sessionLabel = `traveler-${new Date().toISOString().slice(0, 16).replace("T", "-")}`;
 
   try {
     await openclawToolsInvoke({
