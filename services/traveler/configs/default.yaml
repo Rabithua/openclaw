@@ -9,21 +9,23 @@ prompt:
   max_title_length: 36
   public: true
   tags: ["traveler"]
-  language: "zh_CN"  # Output language for notes (e.g., "en", "zh", "ja")
+  language: "zh_CN" # Output language for notes (e.g., "en", "zh", "ja")
 
 sources:
   # Add RSS feeds you're interested in
   - type: rss
     name: "Hacker News"
-    url: "https://hnrss.org/frontpage"
+    url: "https://hnrss.org/show?points=100&comments=25"
+    limit: 5
 
   # More feed examples:
   - type: rss
     name: "Ruanyifeng's Blog"
-    url: "https://www.ruanyifeng.com/blog/atom.xml"
+    url: "http://feeds.feedburner.com/ruanyifeng"
+    limit: 5
 
 ranking:
   dedupe_window_days: 7 # Deduplication window (days), prevents reprocessing the same content
-  batch_limit: 5 # Maximum items per batch sent to OpenClaw
+  max_notes_per_run: 6 # Hard cap of candidate items sent to OpenClaw per run
 
 output: {}

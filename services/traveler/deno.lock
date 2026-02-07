@@ -2,11 +2,16 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/cli@*": "1.0.27",
+    "jsr:@std/cli@1": "1.0.27",
     "jsr:@std/fs@*": "1.0.22",
+    "jsr:@std/fs@1": "1.0.22",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@*": "1.1.4",
+    "jsr:@std/path@1": "1.1.4",
     "jsr:@std/yaml@*": "1.0.11",
-    "npm:fast-xml-parser@4.5.1": "4.5.1"
+    "jsr:@std/yaml@1": "1.0.11",
+    "npm:fast-xml-parser@4.5.1": "4.5.1",
+    "npm:fast-xml-parser@^4.5.1": "4.5.1"
   },
   "jsr": {
     "@std/cli@1.0.27": {
@@ -39,5 +44,14 @@
     "strnum@1.1.2": {
       "integrity": "sha512-vrN+B7DBIoTTZjnPNewwhx6cBA/H+IS7rfW68n7XxC1y7uoiGQBxaKzqucGUgavX15dJgiGztLJ8vxuEzwqBdA=="
     }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/cli@1",
+      "jsr:@std/fs@1",
+      "jsr:@std/path@1",
+      "jsr:@std/yaml@1",
+      "npm:fast-xml-parser@^4.5.1"
+    ]
   }
 }

@@ -41,15 +41,6 @@ export async function handleSubmit(
     };
   }
 
-  const batchLimit = cfg.ranking?.batch_limit ?? 5;
-
-  if (req.feed_items.length > batchLimit) {
-    return {
-      ok: false,
-      error: `invalid_request: maximum ${batchLimit} items per request`,
-    };
-  }
-
   // 2. Check OpenClaw configuration
   const gatewayUrl = (Deno.env.get("OPENCLAW_GATEWAY_URL") ?? "").trim();
   const gatewayToken = (Deno.env.get("OPENCLAW_GATEWAY_TOKEN") ?? "").trim();

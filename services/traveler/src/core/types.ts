@@ -14,13 +14,14 @@ export type SourceConfig = {
   type: "rss";
   name?: string;
   url: string;
+  limit?: number; // per-source batch limit
 };
 
 export type RankingConfig = {
   daily_limit?: number;
   min_score?: number;
   dedupe_window_days?: number;
-  batch_limit?: number;
+  max_notes_per_run?: number;
 };
 
 export type OutputRoteConfig = {

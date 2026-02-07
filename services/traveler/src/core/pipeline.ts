@@ -23,12 +23,30 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   // 2. Fetch all subscription sources
   const sources = cfg.sources ?? [];
   const allItems: FeedItem[] = [];
+  const seenInRun = new Set<string>();
 
   for (const src of sources) {
     if (src.type === "rss") {
       const items = await fetchRss(src.url, src.name ?? "rss");
-      allItems.push(...items);
       console.log(`📡 Fetched ${items.length} items from ${src.name}`);
+      const dedupeDays = cfg.ranking?.dedupe_window_days ?? 7;
+      const perSourceLimit = Math.max(0, Math.floor(src.limit ?? 5));
+      const newItems: FeedItem[] = [];
+
+      for (const item of items) {
+        if (isSeen(item.url, dedupeDays)) continue;
+        if (seenInRun.has(item.url)) continue;
+        newItems.push(item);
+        seenInRun.add(item.url);
+        if (newItems.length >= perSourceLimit) {
+          break;
+        }
+      }
+
+      if (newItems.length) {
+        allItems.push(...newItems);
+        console.log(`✨ Selected ${newItems.length} new items from ${src.name}`);
+      }
     }
   }
 
@@ -37,18 +55,18 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
     return;
   }
 
-  // 3. Deduplicate (avoid duplicate submissions)
-  const dedupeDays = cfg.ranking?.dedupe_window_days ?? 7;
-  const newItems = allItems.filter((i) => !isSeen(i.url, dedupeDays));
-  const batchLimit = cfg.ranking?.batch_limit ?? 5;
-  const sendItems = newItems.slice(0, batchLimit);
+  const maxNotesPerRun = cfg.ranking?.max_notes_per_run;
+  const sendLimit = maxNotesPerRun === undefined
+    ? undefined
+    : Math.max(0, Math.floor(maxNotesPerRun));
+  const sendItems = sendLimit === undefined ? allItems : allItems.slice(0, sendLimit);
 
-  if (!newItems.length) {
-    console.log(`📋 All ${allItems.length} items have been processed (within ${dedupeDays} days)`);
+  if (!sendItems.length) {
+    console.log("📭 max_notes_per_run is 0, nothing will be sent");
     return;
   }
 
-  console.log(`✨ Found ${newItems.length} new items, forwarding to OpenClaw...`);
+  console.log(`✨ Found ${allItems.length} new items, sending ${sendItems.length} to OpenClaw...`);
 
   // 4. Build task prompt
 
