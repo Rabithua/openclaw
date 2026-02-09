@@ -46,6 +46,7 @@ export function generateCuratorPrompt(
   lines.push(`3. Title should be short and clear, no more than ${maxTitleLength} characters`);
   lines.push("4. Body should be written in one paragraph (no bullet points, no sections, no headers)");
   lines.push("5. Do not output literal escape sequences (like \\n, \\t, \\\") in the body, keep it as natural text");
+  lines.push("5.1. Do not test the OpenClaw interface or send spammy test messages; use the default available interface directly");
   lines.push(`6. Note tags: ${tags.join(", ")}, plus up to three content-related tags`);
   lines.push(`7. Write the note content in ${language}`);
   lines.push(publicInstruction);
