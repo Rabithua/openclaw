@@ -3,6 +3,8 @@ import { isSeen, markSeen } from "./dedupe.ts";
 import { openclawToolsInvoke } from "../utils/openclaw.ts";
 import type { FeedItem, TravelerConfig } from "./types.ts";
 import { generateCuratorPrompt } from "./prompt.ts";
+import { logInfo } from "../utils/logger.ts";
+import { buildLoggedLinks } from "../utils/link_log.ts";
 
 /**
  * Simplified pipeline: Send RSS content directly to OpenClaw and let AI decide
@@ -16,7 +18,9 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
 
   if (!gatewayUrl || !gatewayToken) {
     console.error("❌ Missing OPENCLAW_GATEWAY_URL or OPENCLAW_GATEWAY_TOKEN");
-    console.error("   Traveler now fully relies on OpenClaw, please configure these environment variables");
+    console.error(
+      "   Traveler now fully relies on OpenClaw, please configure these environment variables",
+    );
     return;
   }
 
@@ -45,7 +49,9 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
 
       if (newItems.length) {
         allItems.push(...newItems);
-        console.log(`✨ Selected ${newItems.length} new items from ${src.name}`);
+        console.log(
+          `✨ Selected ${newItems.length} new items from ${src.name}`,
+        );
       }
     }
   }
@@ -59,21 +65,27 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   const sendLimit = maxNotesPerRun === undefined
     ? undefined
     : Math.max(0, Math.floor(maxNotesPerRun));
-  const sendItems = sendLimit === undefined ? allItems : allItems.slice(0, sendLimit);
+  const sendItems = sendLimit === undefined
+    ? allItems
+    : allItems.slice(0, sendLimit);
 
   if (!sendItems.length) {
     console.log("📭 max_notes_per_run is 0, nothing will be sent");
     return;
   }
 
-  console.log(`✨ Found ${allItems.length} new items, sending ${sendItems.length} to OpenClaw...`);
+  console.log(
+    `✨ Found ${allItems.length} new items, sending ${sendItems.length} to OpenClaw...`,
+  );
 
   // 4. Build task prompt
 
   const prompt = generateCuratorPrompt(cfg, sendItems);
 
   // 5. Send to OpenClaw
-  const sessionLabel = `traveler-${new Date().toISOString().slice(0, 16).replace("T", "-")}`;
+  const sessionLabel = `traveler-${
+    new Date().toISOString().slice(0, 16).replace("T", "-")
+  }`;
 
   try {
     await openclawToolsInvoke({
@@ -82,7 +94,8 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
       tool: "sessions_spawn",
       toolArgs: {
         label: sessionLabel,
-        task: `${prompt}\n\nROTE_API_BASE=${roteApiBase}\nROTE_OPENKEY=${roteOpenKey}`,
+        task:
+          `${prompt}\n\nROTE_API_BASE=${roteApiBase}\nROTE_OPENKEY=${roteOpenKey}`,
         cleanup: "delete",
       },
     });
@@ -94,6 +107,11 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
 
     console.log(`✅ Sent ${sendItems.length} items to OpenClaw`);
     console.log(`   Session label: ${sessionLabel}`);
+    logInfo("scheduled_send_items", {
+      session_label: sessionLabel,
+      count: sendItems.length,
+      items: buildLoggedLinks(sendItems),
+    });
   } catch (error) {
     console.error("❌ Failed to send to OpenClaw:", error);
     throw error;

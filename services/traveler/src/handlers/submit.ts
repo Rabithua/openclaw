@@ -2,7 +2,8 @@ import type { FeedItem, TravelerConfig } from "../core/types.ts";
 import { isSeen, markSeen } from "../core/dedupe.ts";
 import { generateCuratorPrompt } from "../core/prompt.ts";
 import { openclawToolsInvoke } from "../utils/openclaw.ts";
-import { logError } from "../utils/logger.ts";
+import { logError, logInfo } from "../utils/logger.ts";
+import { buildLoggedLinks } from "../utils/link_log.ts";
 
 export type SubmitRequest = {
   source_name: string;
@@ -48,7 +49,8 @@ export async function handleSubmit(
   if (!gatewayUrl || !gatewayToken) {
     return {
       ok: false,
-      error: "server_error: OPENCLAW_GATEWAY_URL or OPENCLAW_GATEWAY_TOKEN not configured",
+      error:
+        "server_error: OPENCLAW_GATEWAY_URL or OPENCLAW_GATEWAY_TOKEN not configured",
     };
   }
 
@@ -108,6 +110,13 @@ export async function handleSubmit(
     for (const item of newItems) {
       markSeen(item.url);
     }
+    logInfo("submit_send_items", {
+      source_name: req.source_name,
+      session_label: sessionLabel,
+      count: newItems.length,
+      rejected,
+      items: buildLoggedLinks(newItems),
+    });
 
     return {
       ok: true,

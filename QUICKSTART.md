@@ -26,6 +26,9 @@ OPENCLAW_GATEWAY_TOKEN=your-token
 # Rote 配置（用于 Traveler）
 ROTE_OPENKEY=your-rote-openkey
 
+# Traveler 去重库（可选，建议保留默认）
+TRAVELER_DB_PATH=.local/state/traveler.db
+
 # GitHub Webhook 密钥（用于 Webhookd）
 GITHUB_WEBHOOK_SECRET=your-github-secret
 ```
