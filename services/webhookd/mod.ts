@@ -19,9 +19,10 @@ import { logError, logInfo, logWarn } from './src/utils/logger.ts';
  */
 
 const PORT = Number(Deno.env.get('WEBHOOKD_PORT') ?? Deno.env.get('PORT') ?? '8787');
+const HOST = Deno.env.get('WEBHOOKD_HOST') ?? '0.0.0.0';
 const WEBHOOK_PATH = Deno.env.get('WEBHOOK_PATH') ?? '/webhook';
 
-Deno.serve({ port: PORT }, async (req) => {
+Deno.serve({ hostname: HOST, port: PORT }, async (req) => {
   const requestId = crypto.randomUUID();
   const start = Date.now();
   const url = new URL(req.url);
@@ -112,6 +113,9 @@ Deno.serve({ port: PORT }, async (req) => {
 });
 
 logInfo('server_listening', {
-  url: `http://127.0.0.1:${PORT}${WEBHOOK_PATH}`,
+  host: HOST,
+  port: PORT,
+  url: `http://${HOST}:${PORT}${WEBHOOK_PATH}`,
+  local_url: `http://127.0.0.1:${PORT}${WEBHOOK_PATH}`,
   routes: [`POST ${WEBHOOK_PATH}`, 'GET /healthz'],
 });
