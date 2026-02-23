@@ -1,7 +1,7 @@
 import { json } from '../utils/http.ts';
 import { logError, logInfo, logWarn } from '../utils/logger.ts';
 import { verifyGithubSignatureOrThrow } from '../utils/github_signature.ts';
-import { openclawToolsInvoke, requireEnv } from '../utils/openclaw.ts';
+import { openclawSpawnSession, requireEnv } from '../utils/openclaw.ts';
 
 type GithubActor = { login: string };
 
@@ -445,10 +445,9 @@ export async function handleGithubWebhook(
     `Note: This was triggered by a GitHub ${issueOrPr} webhook event (${ctx.event}).`,
   ].join('\n');
 
-  await openclawToolsInvoke({
+  await openclawSpawnSession({
     gatewayUrl,
     gatewayToken,
-    tool: 'sessions_spawn',
     toolArgs: {
       label,
       task,

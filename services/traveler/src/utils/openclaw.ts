@@ -56,7 +56,49 @@ export async function openclawToolsInvoke(
     );
   }
 
+  const internalError = detectInternalInvokeError(data);
+  if (internalError) {
+    throw new Error(`openclaw_invoke_internal_error ${internalError}`);
+  }
+
   return data;
+}
+
+type OpenClawSpawnSessionArgs = {
+  gatewayUrl: string;
+  gatewayToken: string;
+  toolArgs?: Record<string, unknown>;
+  sessionKey?: string;
+  headers?: Record<string, string>;
+};
+
+function isToolUnavailableError(error: unknown, toolName: string): boolean {
+  const msg = String(error ?? "");
+  return msg.includes("openclaw_invoke_failed") &&
+    msg.includes("status=404") &&
+    msg.includes(`Tool not available: ${toolName}`);
+}
+
+export async function openclawSpawnSession(
+  args: OpenClawSpawnSessionArgs,
+): Promise<unknown> {
+  try {
+    return await openclawToolsInvoke({
+      ...args,
+      tool: "sessions_spawn",
+    });
+  } catch (error) {
+    if (!isToolUnavailableError(error, "sessions_spawn")) {
+      throw error;
+    }
+  }
+
+  // Compatibility fallback for gateways that expose sessions tool/action.
+  return await openclawToolsInvoke({
+    ...args,
+    tool: "sessions",
+    action: "spawn",
+  });
 }
 
 export function requireEnv(name: string): string {
@@ -67,4 +109,36 @@ export function requireEnv(name: string): string {
 
 export function okJson(extra?: Record<string, unknown>): Response {
   return json({ ok: true, ...(extra ?? {}) });
+}
+
+function detectInternalInvokeError(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+
+  const root = data as Record<string, unknown>;
+  if (root.ok === false) {
+    const error = root.error;
+    if (typeof error === "string") return error;
+    if (error && typeof error === "object") {
+      const msg = (error as Record<string, unknown>).message;
+      if (typeof msg === "string" && msg) return msg;
+    }
+    return "invoke returned ok=false";
+  }
+
+  const details = (
+    root.result &&
+      typeof root.result === "object" &&
+      (root.result as Record<string, unknown>).details &&
+      typeof (root.result as Record<string, unknown>).details === "object"
+  )
+    ? (root.result as Record<string, unknown>).details as Record<string, unknown>
+    : null;
+
+  if (details?.status === "error") {
+    const msg = details.error;
+    if (typeof msg === "string" && msg) return msg;
+    return "result.details.status=error";
+  }
+
+  return null;
 }

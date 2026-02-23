@@ -1,7 +1,7 @@
 import type { FeedItem, TravelerConfig } from "../core/types.ts";
 import { isSeen, markSeen } from "../core/dedupe.ts";
 import { generateCuratorPrompt } from "../core/prompt.ts";
-import { openclawToolsInvoke } from "../utils/openclaw.ts";
+import { openclawSpawnSession } from "../utils/openclaw.ts";
 import { logError, logInfo } from "../utils/logger.ts";
 import { buildLoggedLinks } from "../utils/link_log.ts";
 
@@ -95,10 +95,9 @@ export async function handleSubmit(
   const sessionLabel = `traveler-submit-${req.source_name}-${Date.now()}`;
 
   try {
-    await openclawToolsInvoke({
+    await openclawSpawnSession({
       gatewayUrl,
       gatewayToken,
-      tool: "sessions_spawn",
       toolArgs: {
         label: sessionLabel,
         task: prompt,

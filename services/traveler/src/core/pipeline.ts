@@ -1,6 +1,6 @@
 import { fetchRss } from "./rss.ts";
 import { isSeen, markSeen } from "./dedupe.ts";
-import { openclawToolsInvoke } from "../utils/openclaw.ts";
+import { openclawSpawnSession } from "../utils/openclaw.ts";
 import type { FeedItem, TravelerConfig } from "./types.ts";
 import { generateCuratorPrompt } from "./prompt.ts";
 import { logInfo } from "../utils/logger.ts";
@@ -88,10 +88,9 @@ export async function runOnce(cfg: TravelerConfig): Promise<void> {
   }`;
 
   try {
-    await openclawToolsInvoke({
+    await openclawSpawnSession({
       gatewayUrl,
       gatewayToken,
-      tool: "sessions_spawn",
       toolArgs: {
         label: sessionLabel,
         task:

@@ -33,6 +33,30 @@ TRAVELER_DB_PATH=.local/state/traveler.db
 GITHUB_WEBHOOK_SECRET=your-github-secret
 ```
 
+## OpenClaw 网关权限（必须）
+
+`traveler` 和 `webhookd` 会调用 OpenClaw 的 `/tools/invoke` 来触发会话。
+根据 OpenClaw 最新文档，HTTP 调用默认会拒绝部分高风险工具；如果未放行会出现：
+`Tool not available: sessions_spawn`。
+
+请在本机 `~/.openclaw/openclaw.json` 中加入：
+
+```json
+{
+  "gateway": {
+    "tools": {
+      "allow": ["sessions_spawn"]
+    }
+  }
+}
+```
+
+然后重启网关：
+
+```bash
+openclaw gateway restart
+```
+
 ## 常用命令
 
 ```bash

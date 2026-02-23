@@ -20,6 +20,20 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
+Before running these services, allow `sessions_spawn` in your local OpenClaw gateway config (required by `/tools/invoke`):
+
+```json
+{
+  "gateway": {
+    "tools": {
+      "allow": ["sessions_spawn"]
+    }
+  }
+}
+```
+
+Then restart gateway: `openclaw gateway restart`.
+
 ## Services
 
 ### Traveler (Port 8788)
