@@ -58,7 +58,9 @@ export async function openclawToolsInvoke(
 
   const internalError = detectInternalInvokeError(data);
   if (internalError) {
-    throw new Error(`openclaw_invoke_internal_error ${internalError}`);
+    throw new Error(
+      `openclaw_invoke_internal_error ${withPairingHint(internalError)}`,
+    );
   }
 
   return data;
@@ -126,12 +128,15 @@ function detectInternalInvokeError(data: unknown): string | null {
   }
 
   const details = (
-    root.result &&
+      root.result &&
       typeof root.result === "object" &&
       (root.result as Record<string, unknown>).details &&
       typeof (root.result as Record<string, unknown>).details === "object"
-  )
-    ? (root.result as Record<string, unknown>).details as Record<string, unknown>
+    )
+    ? (root.result as Record<string, unknown>).details as Record<
+      string,
+      unknown
+    >
     : null;
 
   if (details?.status === "error") {
@@ -141,4 +146,9 @@ function detectInternalInvokeError(data: unknown): string | null {
   }
 
   return null;
+}
+
+function withPairingHint(message: string): string {
+  if (!message.toLowerCase().includes("pairing required")) return message;
+  return `${message} (gateway device not paired; run: openclaw devices list, then openclaw doctor --repair or approve pending device/pairing in OpenClaw UI)`;
 }

@@ -57,6 +57,15 @@ GITHUB_WEBHOOK_SECRET=your-github-secret
 openclaw gateway restart
 ```
 
+如果出现 `gateway closed (1008): pairing required`，通常不是 token 错误，而是网关认为调用方设备未配对。可执行：
+
+```bash
+openclaw devices list
+openclaw doctor --repair
+```
+
+或者在 OpenClaw 控制台里批准 pending 的 pairing/device 请求。
+
 ## 常用命令
 
 ```bash

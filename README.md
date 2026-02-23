@@ -34,6 +34,16 @@ Before running these services, allow `sessions_spawn` in your local OpenClaw gat
 
 Then restart gateway: `openclaw gateway restart`.
 
+If you see `gateway closed (1008): pairing required`, the gateway token is valid but the calling
+device is not paired/approved yet. Fix with:
+
+```bash
+openclaw devices list
+openclaw doctor --repair
+```
+
+Or approve the pending pairing/device request in OpenClaw Control UI.
+
 ## Services
 
 ### Traveler (Port 8788)
