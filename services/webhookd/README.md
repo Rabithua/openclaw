@@ -60,7 +60,7 @@ you want to load from a file).
 Health check:
 
 ```bash
-curl http://127.0.0.1:8787/healthz
+curl http://127.0.0.1:18787/healthz
 ```
 
 ## Exposing to the Internet (recommended: Tailscale Funnel)
@@ -69,7 +69,7 @@ If you have Tailscale installed on the same machine:
 
 ```bash
 tailscale cert <your-node>.ts.net
-tailscale funnel --bg http://127.0.0.1:8787
+tailscale funnel --bg http://127.0.0.1:18787
 ```
 
 Then set your GitHub webhook URL to:

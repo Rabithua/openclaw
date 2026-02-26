@@ -9,7 +9,7 @@ import { logError, logInfo, logWarn } from './src/utils/logger.ts';
  * then forwards them to OpenClaw (Gateway /tools/invoke).
  *
  * Env:
- *  - PORT (default 8787)
+ *  - PORT (default 18787)
  *  - WEBHOOK_PATH (default /webhook)
  *  - OPENCLAW_GATEWAY_URL (default http://127.0.0.1:18789)
  *  - OPENCLAW_GATEWAY_TOKEN (required)
@@ -18,7 +18,7 @@ import { logError, logInfo, logWarn } from './src/utils/logger.ts';
  *  - GITHUB_WEBHOOK_SECRET (required)
  */
 
-const PORT = Number(Deno.env.get('WEBHOOKD_PORT') ?? Deno.env.get('PORT') ?? '8787');
+const PORT = Number(Deno.env.get('WEBHOOKD_PORT') ?? Deno.env.get('PORT') ?? '18787');
 const HOST = Deno.env.get('WEBHOOKD_HOST') ?? '0.0.0.0';
 const WEBHOOK_PATH = Deno.env.get('WEBHOOK_PATH') ?? '/webhook';
 

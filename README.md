@@ -53,11 +53,11 @@ RSS Subscription Assistant - Fetches RSS, filters via OpenClaw AI, and publishes
 - Health Check: `curl http://localhost:8788/healthz`
 - Manual Fetch: `docker-compose exec traveler deno task run`
 
-### Webhookd (Port 8787)
+### Webhookd (Port 18787)
 
 GitHub Webhook Receiver - Forwards GitHub events to OpenClaw.
 
-- Health Check: `curl http://localhost:8787/healthz`
+- Health Check: `curl http://localhost:18787/healthz`
 
 ## Common Commands
 

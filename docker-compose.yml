@@ -30,10 +30,10 @@ services:
     container_name: openclaw-webhookd
     restart: unless-stopped
     ports:
-      - "${WEBHOOKD_PORT:-8787}:${WEBHOOKD_PORT:-8787}"
+      - "${WEBHOOKD_PORT:-18787}:${WEBHOOKD_PORT:-18787}"
     environment:
       # 从环境变量或 .env 文件读取
-      WEBHOOKD_PORT: ${WEBHOOKD_PORT:-8787}
+      WEBHOOKD_PORT: ${WEBHOOKD_PORT:-18787}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
       OPENCLAW_GATEWAY_URL: ${OPENCLAW_GATEWAY_URL:-}
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}

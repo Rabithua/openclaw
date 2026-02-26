@@ -76,7 +76,7 @@ deno task start
 Health check:
 
 ```bash
-curl http://127.0.0.1:8787/healthz
+curl http://127.0.0.1:18787/healthz
 ```
 
 ### Option B: Docker (long-lived)
@@ -87,7 +87,7 @@ approach is to use the official Deno image and mount the code:
 ```bash
 docker run -d --name webhookd \
   --restart unless-stopped \
-  -p 127.0.0.1:8787:8787 \
+  -p 127.0.0.1:18787:18787 \
   --env-file .env \
   -v "$(pwd)":/app \
   -w /app \
@@ -153,7 +153,7 @@ On the same machine that runs `webhookd`:
 ```bash
 tailscale cert <your-node>.ts.net
 # Forward public HTTPS → local HTTP
-tailscale funnel --bg http://127.0.0.1:8787
+tailscale funnel --bg http://127.0.0.1:18787
 ```
 
 Your webhook URL becomes:
@@ -163,7 +163,7 @@ Your webhook URL becomes:
 ### Alternatives
 
 - Cloudflare Tunnel / reverse proxy / nginx / Caddy, etc.
-- If you use a reverse proxy, forward `POST /webhook` to `http://127.0.0.1:8787/webhook`.
+- If you use a reverse proxy, forward `POST /webhook` to `http://127.0.0.1:18787/webhook`.
 
 ---
 

@@ -92,7 +92,7 @@ docker-compose exec webhookd sh
   - `GET /healthz` - 健康检查
   - `POST /traveler/submit` - 提交内容
 
-- **Webhookd**: http://localhost:8787
+- **Webhookd**: http://localhost:18787
   - `GET /healthz` - 健康检查
   - `POST /webhook` - GitHub webhook 端点
 
